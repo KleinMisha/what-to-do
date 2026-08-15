@@ -1,4 +1,4 @@
-"""Unit tests for src/what_to_do/db/task.repository.py"""
+"""Unit tests for src/what_to_do/db/task_repository.py"""
 
 from uuid import uuid4
 
