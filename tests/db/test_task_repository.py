@@ -37,10 +37,6 @@ def mock_task() -> Task:
 
 def test_create_task(db_session: Session, mock_task: Task) -> None:
     """Create a new Task model and place it in the database."""
-    print(mock_task.priority)
-    print(type(mock_task.priority))
-    print(mock_task.priority is Priority.HIGH)
-
     repo = TaskRepository(db_session)
     record_in_db = repo.create(mock_task)
     assert isinstance(record_in_db, Task)
