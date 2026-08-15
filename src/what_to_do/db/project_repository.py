@@ -69,6 +69,6 @@ class ProjectRepository:
         )
 
     def _fetch_project_by_id(self, id: UUID) -> DBProject | None:
-        """Find the Task, if it exists"""
+        """Find the Project, if it exists"""
         query = select(DBProject).where(DBProject.id == id)
         return self.db.execute(query).scalar_one_or_none()
