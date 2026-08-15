@@ -1,0 +1,13 @@
+"""Protocol Repository for any of the domain objects"""
+
+from typing import Protocol
+from uuid import UUID
+
+
+class Repository[T](Protocol):
+    """A repository of objects T"""
+
+    def create(self, entry: T) -> None: ...
+    def get(self, id: UUID) -> T | None: ...
+    def update(self, entry: T) -> None: ...
+    def delete(self, id: UUID) -> None: ...
