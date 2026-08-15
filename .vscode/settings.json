@@ -16,7 +16,7 @@
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.analysis.autoSearchPaths": true,
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/src/what-to-do"
+        "${workspaceFolder}/src/"
     ],
     // Test settings 
     "python.testing.pytestEnabled": true,
