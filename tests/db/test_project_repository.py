@@ -150,9 +150,7 @@ def test_delete_project(db_session: Session, mock_project: Project) -> None:
     assert found_data is None
 
 
-def test_attempt_delete_unknown_project(
-    db_session: Session, mock_project: Project
-) -> None:
+def test_attempt_delete_unknown_project(db_session: Session) -> None:
     """Attempt to delete a non-existing record."""
     unknown_id = uuid4()
     repo = ProjectRepository(db_session)

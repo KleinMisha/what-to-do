@@ -158,7 +158,7 @@ def test_delete_task(db_session: Session, mock_task: Task) -> None:
     assert found_data is None
 
 
-def test_attempt_delete_unknown_task(db_session: Session, mock_task: Task) -> None:
+def test_attempt_delete_unknown_task(db_session: Session) -> None:
     """Attempt to delete a non-existing record."""
     unknown_id = uuid4()
     repo = TaskRepository(db_session)
