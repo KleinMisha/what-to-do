@@ -7,13 +7,13 @@ Domain level data models:
 """
 
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from uuid import UUID
 
 
 class Priority(Enum):
-    HIGH = auto()
-    LOW = auto()
+    HIGH = "high"
+    LOW = "low"
 
 
 @dataclass
@@ -23,7 +23,7 @@ class Task:
     id: UUID
     group_id: UUID
     title: str
-    description: str = ""
+    description: str | None = None
     priority: Priority | None = None
     project_id: UUID | None = None
 
@@ -35,7 +35,7 @@ class Project:
     id: UUID
     group_id: UUID
     name: str
-    description: str = ""
+    description: str | None = None
 
 
 @dataclass
