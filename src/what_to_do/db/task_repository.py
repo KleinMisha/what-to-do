@@ -1,58 +1,14 @@
 """A SQL repository for Tasks"""
 
-from uuid import UUID
-
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
+from what_to_do.db.repository import Repository
 from what_to_do.db.schema import DBTask
 from what_to_do.tasks.models import Task
 
 
-class TaskRepository:
+class TaskRepository(Repository[Task, DBTask]):
     """SQL database repository for Tasks. Implements 'Repository'"""
 
-    def __init__(self, db_session: Session) -> None:
-        self.db = db_session
-
-    def create(self, model: Task) -> Task:
-        """Create a new Task db model."""
-        db_entry = self._to_db(model)
-        self.db.add(db_entry)
-        self.db.commit()
-        self.db.refresh(db_entry)
-        return self._to_domain(db_entry)
-
-    def get(self, id: UUID) -> Task | None:
-        """Get Task by id, if record exists."""
-        db_entry = self._fetch_task_by_id(id)
-        if not db_entry:
-            return None
-        return self._to_domain(db_entry)
-
-    def update(self, model: Task) -> Task | None:
-        """Overwrite database entry."""
-        db_entry = self._fetch_task_by_id(model.id)
-        if not db_entry:
-            return None
-        db_entry.title = model.title
-        db_entry.description = model.description
-        db_entry.priority = model.priority
-        db_entry.group_id = model.group_id
-        db_entry.project_id = model.project_id
-        self.db.commit()
-        self.db.refresh(db_entry)
-        return self._to_domain(db_entry)
-
-    def delete(self, id: UUID) -> Task | None:
-        """Remove a Task's entry."""
-        db_entry = self._fetch_task_by_id(id)
-        if not db_entry:
-            return None
-        deleted_task = self._to_domain(db_entry)
-        self.db.delete(db_entry)
-        self.db.commit()
-        return deleted_task
+    db_model = DBTask
 
     def _to_db(self, model: Task) -> DBTask:
         """Convert into sqlmodel"""
@@ -75,7 +31,10 @@ class TaskRepository:
             priority=db_entry.priority,
         )
 
-    def _fetch_task_by_id(self, id: UUID) -> DBTask | None:
-        """Find the Task, if it exists"""
-        query = select(DBTask).where(DBTask.id == id)
-        return self.db.execute(query).scalar_one_or_none()
+    def _update_fields(self, db_entry: DBTask, new_data: Task) -> DBTask:
+        db_entry.title = new_data.title
+        db_entry.description = new_data.description
+        db_entry.priority = new_data.priority
+        db_entry.group_id = new_data.group_id
+        db_entry.project_id = new_data.project_id
+        return db_entry
