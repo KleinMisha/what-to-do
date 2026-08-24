@@ -23,11 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_group() -> Group:
-    return Group(id=uuid4(), name="Mock")
-
-
 def test_create_group(db_session: Session, mock_group: Group) -> None:
     """Create a new Group model and place it in the database."""
     repo = GroupRepository(db_session)

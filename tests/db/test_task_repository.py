@@ -23,18 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_task() -> Task:
-    return Task(
-        id=uuid4(),
-        group_id=uuid4(),
-        title="Mock task",
-        description="This is a mock task that is super duper important. ",
-        project_id=uuid4(),
-        priority=Priority.HIGH,
-    )
-
-
 def test_create_task(db_session: Session, mock_task: Task) -> None:
     """Create a new Task model and place it in the database."""
     repo = TaskRepository(db_session)

@@ -23,16 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_project() -> Project:
-    return Project(
-        id=uuid4(),
-        group_id=uuid4(),
-        name="Mock",
-        description="This is a mock project.",
-    )
-
-
 def test_create_project(db_session: Session, mock_project: Project) -> None:
     """Create a new Project model and place it in the database."""
     repo = ProjectRepository(db_session)
