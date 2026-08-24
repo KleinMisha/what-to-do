@@ -1,18 +1,16 @@
 """Base Repository for any of the domain objects / resources"""
 
 from abc import ABC, abstractmethod
-from typing import Protocol, TypeVar
+from typing import TypeVar
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from what_to_do.tasks.models import HasID
+
 DomainModel = TypeVar("DomainModel")
 DBModel = TypeVar("DBModel")
-
-
-class HasID(Protocol):
-    id: UUID
 
 
 class Repository[DomainModel: HasID, DBModel](ABC):
