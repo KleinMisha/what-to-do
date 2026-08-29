@@ -23,6 +23,11 @@ class HasID(Protocol):
     id: UUID
 
 
+class HasGroupID(Protocol):
+    id: UUID
+    group_id: UUID
+
+
 @dataclass
 class Task:
     """A work item."""

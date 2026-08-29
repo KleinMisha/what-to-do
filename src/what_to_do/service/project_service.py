@@ -36,10 +36,7 @@ class ProjectService:
 
     def get(self, id: UUID) -> Project:
         """Retrieve the Project by id."""
-        project = self.projects.get(id)
-        if project is None:
-            raise ResourceNotFoundError("project", id)
-        return project
+        return self._get_or_raise(id)
 
     def delete(self, id: UUID, keep_tasks: bool = False) -> Project:
         """Remove a project.
@@ -48,14 +45,13 @@ class ProjectService:
             if keep_tasks ---> keep the tasks and unassign them from the current project and remain in their respective group.
             if keep_tasks=False (default) ---> also remove the tasks within this project
         """
-
         # deal with the tasks in this group
         tasks = self.tasks.get_by_project_id(id)
-        if tasks and keep_tasks:
+        if keep_tasks:
             for task in tasks:
                 task.project_id = None
                 self.tasks.update(task)
-        elif tasks:
+        else:
             for task in tasks:
                 self.tasks.delete(task.id)
 
@@ -82,11 +78,9 @@ class ProjectService:
         self._ensure_group_exists(group_id)
 
         # Move all tasks
-        tasks = self.tasks.get_by_project_id(project.id)
-        if tasks:
-            for task in tasks:
-                task.group_id = group_id
-                self.tasks.update(task)
+        for task in self.tasks.get_by_project_id(project.id):
+            task.group_id = group_id
+            self.tasks.update(task)
 
         # Move the project itself
         project.group_id = group_id

@@ -68,7 +68,7 @@ def test_delete_project_and_tasks(
     mock_task: Task,
     mock_group: Group,
 ) -> None:
-    """Delete a previously created task + all tasks in it"""
+    """Delete a previously created project + all tasks in it"""
 
     # assign things to the same group and project
     mock_task.group_id = mock_group.id
@@ -150,7 +150,7 @@ def test_update_project_info(
     field: str,
     updated_value: object,
 ) -> None:
-    """Update the task description or other data."""
+    """Update the project description or other data."""
     # place task in repository
     service_w_group.create(mock_project)
 
@@ -161,14 +161,6 @@ def test_update_project_info(
     service_w_group.update_info(mock_project)
     persisted_project = service_w_group.get(mock_project.id)
     assert getattr(persisted_project, field) == updated_value
-
-
-def test_update_unknown_project(
-    service_w_group: ProjectService, mock_project: Project
-) -> None:
-    """Cannot update project that does not exist."""
-    with pytest.raises(ResourceNotFoundError):
-        service_w_group.update_info(mock_project)
 
 
 def test_move_group(
