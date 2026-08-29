@@ -58,6 +58,12 @@ class Repository[DomainModel: HasID, DBModel](ABC):
         self.db.commit()
         return deleted_task
 
+    def get_all(self) -> list[DomainModel]:
+        """Return all entries of given resource in database"""
+        query = select(self.db_model)
+        db_entries = self.db.scalars(query).all()
+        return [self._to_domain(entry) for entry in db_entries]
+
     def _fetch_by_id(self, id: UUID) -> DBModel:
         """Find the entry, if it exists"""
         query = select(self.db_model).where(self.db_model.id == id)  # type: ignore

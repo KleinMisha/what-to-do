@@ -152,3 +152,31 @@ def test_attempt_delete_unknown_task(db_session: Session) -> None:
     repo = TaskRepository(db_session)
     deleted_data = repo.delete(unknown_id)
     assert deleted_data is None
+
+
+def test_get_all_tasks(db_session: Session) -> None:
+    """Place two tasks in database, check that both are returned"""
+    item_1 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        title="One",
+        description="First entry",
+    )
+    item_2 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        title="Two",
+        description="Second entry",
+    )
+    repo = TaskRepository(db_session)
+    repo.create(item_1)
+    repo.create(item_2)
+    items = repo.get_all()
+    assert items == [item_1, item_2]
+
+
+def test_get_empty_task_list(db_session: Session) -> None:
+    """An empty list should get returned if no task is entered into database yet."""
+    repo = TaskRepository(db_session)
+    items = repo.get_all()
+    assert items == []

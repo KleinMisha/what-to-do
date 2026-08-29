@@ -146,3 +146,31 @@ def test_attempt_delete_unknown_project(db_session: Session) -> None:
     repo = ProjectRepository(db_session)
     deleted_data = repo.delete(unknown_id)
     assert deleted_data is None
+
+
+def test_get_all_projects(db_session: Session) -> None:
+    """Place two projects in database, check that both are returned"""
+    item_1 = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="One",
+        description="First entry",
+    )
+    item_2 = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="Two",
+        description="Second entry",
+    )
+    repo = ProjectRepository(db_session)
+    repo.create(item_1)
+    repo.create(item_2)
+    items = repo.get_all()
+    assert items == [item_1, item_2]
+
+
+def test_get_empty_project_list(db_session: Session) -> None:
+    """An empty list should get returned if no project is entered into database yet."""
+    repo = ProjectRepository(db_session)
+    items = repo.get_all()
+    assert items == []
