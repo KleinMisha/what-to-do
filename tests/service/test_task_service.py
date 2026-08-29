@@ -136,6 +136,8 @@ def test_delete_task(service_w_group: TaskService, mock_task: Task) -> None:
     removed_task = service_w_group.delete(existing_task.id)
     assert removed_task is not None
     assert removed_task == existing_task
+    with pytest.raises(ResourceNotFoundError):
+        service_w_group.get(removed_task.id)
 
 
 def test_delete_unknown_task(service_w_group: TaskService) -> None:
