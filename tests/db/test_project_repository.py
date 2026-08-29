@@ -174,3 +174,41 @@ def test_get_empty_project_list(db_session: Session) -> None:
     repo = ProjectRepository(db_session)
     items = repo.get_all()
     assert items == []
+
+
+def test_get_by_group_id(db_session: Session) -> None:
+    """Returns all projects assigned to the given group."""
+    group_id = uuid4()
+
+    project_1 = Project(
+        id=uuid4(),
+        group_id=group_id,
+        name="Task 1",
+        description="First task",
+    )
+    project_2 = Project(
+        id=uuid4(),
+        group_id=group_id,
+        name="Task 2",
+        description="Second task",
+    )
+    unrelated_project = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="Other task",
+        description="Unrelated task",
+    )
+
+    repo = ProjectRepository(db_session)
+    repo.create(project_1)
+    repo.create(project_2)
+    repo.create(unrelated_project)
+    projects = repo.get_by_group_id(group_id)
+    assert {project.id for project in projects} == {project_1.id, project_2.id}
+
+
+def test_get_by_group_id_no_projects(db_session: Session) -> None:
+    """Returns an empty list when no projects are assigned to the group."""
+    repo = ProjectRepository(db_session)
+    projects = repo.get_by_group_id(uuid4())
+    assert projects == []

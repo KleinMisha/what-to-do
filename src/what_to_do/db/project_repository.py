@@ -1,5 +1,9 @@
 """A SQL repository for Project resource"""
 
+from uuid import UUID
+
+from sqlalchemy import select
+
 from what_to_do.db.repository import Repository
 from what_to_do.db.schema import DBProject
 from what_to_do.tasks.models import Project
@@ -9,6 +13,11 @@ class ProjectRepository(Repository[Project, DBProject]):
     """SQL database repository for Projects. Implements 'Repository"""
 
     db_model = DBProject
+
+    def get_by_group_id(self, group_id: UUID) -> list[DBProject]:
+        """Get all projects assigned to a given group."""
+        query = select(self.db_model).where(self.db_model.group_id == group_id)
+        return list(self.db.scalars(query).all())
 
     def _to_db(self, model: Project) -> DBProject:
         return DBProject(

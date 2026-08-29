@@ -1,5 +1,9 @@
 """A SQL repository for Tasks"""
 
+from uuid import UUID
+
+from sqlalchemy import select
+
 from what_to_do.db.repository import Repository
 from what_to_do.db.schema import DBTask
 from what_to_do.tasks.models import Task
@@ -9,6 +13,16 @@ class TaskRepository(Repository[Task, DBTask]):
     """SQL database repository for Tasks. Implements 'Repository'"""
 
     db_model = DBTask
+
+    def get_by_project_id(self, project_id: UUID) -> list[DBTask]:
+        """Get all tasks assigned to a given project."""
+        query = select(self.db_model).where(self.db_model.project_id == project_id)
+        return list(self.db.scalars(query).all())
+
+    def get_by_group_id(self, group_id: UUID) -> list[DBTask]:
+        """Get all tasks assigned to a given group."""
+        query = select(self.db_model).where(self.db_model.group_id == group_id)
+        return list(self.db.scalars(query).all())
 
     def _to_db(self, model: Task) -> DBTask:
         """Convert into sqlmodel"""
