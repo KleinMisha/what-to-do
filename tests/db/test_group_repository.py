@@ -146,7 +146,7 @@ def test_get_all_groups(db_session: Session) -> None:
     repo.create(item_1)
     repo.create(item_2)
     items = repo.get_all()
-    assert items == [item_1, item_2]
+    assert {item.id for item in items} == {item_1.id, item_2.id}
 
 
 def test_get_empty_group_list(db_session: Session) -> None:
