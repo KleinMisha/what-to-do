@@ -1,7 +1,7 @@
 {
     // Workbench settings
     "workbench.colorCustomizations": {
-        "titleBar.activeBackground": "#eeb61d",
+        "titleBar.activeBackground": "#68616c",
     },
     // Editor settings / formating settings 
     "ruff.importStrategy": "useBundled",

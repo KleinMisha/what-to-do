@@ -1,18 +1,16 @@
 """Base Repository for any of the domain objects / resources"""
 
 from abc import ABC, abstractmethod
-from typing import Protocol, TypeVar
+from typing import TypeVar
 from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from what_to_do.tasks.models import HasID
+
 DomainModel = TypeVar("DomainModel")
 DBModel = TypeVar("DBModel")
-
-
-class HasID(Protocol):
-    id: UUID
 
 
 class Repository[DomainModel: HasID, DBModel](ABC):
@@ -59,6 +57,12 @@ class Repository[DomainModel: HasID, DBModel](ABC):
         self.db.delete(db_entry)
         self.db.commit()
         return deleted_task
+
+    def get_all(self) -> list[DomainModel]:
+        """Return all entries of given resource in database"""
+        query = select(self.db_model)
+        db_entries = self.db.scalars(query).all()
+        return [self._to_domain(entry) for entry in db_entries]
 
     def _fetch_by_id(self, id: UUID) -> DBModel:
         """Find the entry, if it exists"""

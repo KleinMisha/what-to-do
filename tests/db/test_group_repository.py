@@ -23,11 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_group() -> Group:
-    return Group(id=uuid4(), name="Mock")
-
-
 def test_create_group(db_session: Session, mock_group: Group) -> None:
     """Create a new Group model and place it in the database."""
     repo = GroupRepository(db_session)
@@ -141,3 +136,21 @@ def test_attempt_delete_unknown_group(db_session: Session) -> None:
     repo = GroupRepository(db_session)
     deleted_data = repo.delete(unknown_id)
     assert deleted_data is None
+
+
+def test_get_all_groups(db_session: Session) -> None:
+    """Place two groups in database, check that both are returned"""
+    item_1 = Group(id=uuid4(), name="One")
+    item_2 = Group(id=uuid4(), name="Two")
+    repo = GroupRepository(db_session)
+    repo.create(item_1)
+    repo.create(item_2)
+    items = repo.get_all()
+    assert {item.id for item in items} == {item_1.id, item_2.id}
+
+
+def test_get_empty_group_list(db_session: Session) -> None:
+    """An empty list should get returned if no group is entered into database yet."""
+    repo = GroupRepository(db_session)
+    items = repo.get_all()
+    assert items == []

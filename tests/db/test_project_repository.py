@@ -23,16 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_project() -> Project:
-    return Project(
-        id=uuid4(),
-        group_id=uuid4(),
-        name="Mock",
-        description="This is a mock project.",
-    )
-
-
 def test_create_project(db_session: Session, mock_project: Project) -> None:
     """Create a new Project model and place it in the database."""
     repo = ProjectRepository(db_session)
@@ -156,3 +146,69 @@ def test_attempt_delete_unknown_project(db_session: Session) -> None:
     repo = ProjectRepository(db_session)
     deleted_data = repo.delete(unknown_id)
     assert deleted_data is None
+
+
+def test_get_all_projects(db_session: Session) -> None:
+    """Place two projects in database, check that both are returned"""
+    item_1 = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="One",
+        description="First entry",
+    )
+    item_2 = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="Two",
+        description="Second entry",
+    )
+    repo = ProjectRepository(db_session)
+    repo.create(item_1)
+    repo.create(item_2)
+    items = repo.get_all()
+    assert {item.id for item in items} == {item_1.id, item_2.id}
+
+
+def test_get_empty_project_list(db_session: Session) -> None:
+    """An empty list should get returned if no project is entered into database yet."""
+    repo = ProjectRepository(db_session)
+    items = repo.get_all()
+    assert items == []
+
+
+def test_get_by_group_id(db_session: Session) -> None:
+    """Returns all projects assigned to the given group."""
+    group_id = uuid4()
+
+    project_1 = Project(
+        id=uuid4(),
+        group_id=group_id,
+        name="Task 1",
+        description="First task",
+    )
+    project_2 = Project(
+        id=uuid4(),
+        group_id=group_id,
+        name="Task 2",
+        description="Second task",
+    )
+    unrelated_project = Project(
+        id=uuid4(),
+        group_id=uuid4(),
+        name="Other task",
+        description="Unrelated task",
+    )
+
+    repo = ProjectRepository(db_session)
+    repo.create(project_1)
+    repo.create(project_2)
+    repo.create(unrelated_project)
+    projects = repo.get_by_group_id(group_id)
+    assert {project.id for project in projects} == {project_1.id, project_2.id}
+
+
+def test_get_by_group_id_no_projects(db_session: Session) -> None:
+    """Returns an empty list when no projects are assigned to the group."""
+    repo = ProjectRepository(db_session)
+    projects = repo.get_by_group_id(uuid4())
+    assert projects == []

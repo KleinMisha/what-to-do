@@ -8,12 +8,24 @@ Domain level data models:
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import Protocol
 from uuid import UUID
 
 
 class Priority(Enum):
     HIGH = "high"
     LOW = "low"
+
+
+class HasID(Protocol):
+    "To facilitate defining generic type hints in other layers."
+
+    id: UUID
+
+
+class HasGroupID(Protocol):
+    id: UUID
+    group_id: UUID
 
 
 @dataclass

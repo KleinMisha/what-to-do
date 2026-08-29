@@ -1,0 +1,13 @@
+"""Protocol for a repository for any of the resources."""
+
+from typing import Protocol
+from uuid import UUID
+
+
+class Repository[T](Protocol):
+    """Protocol consumed by (injected into) the services, so these stay agnostic of specific implementation."""
+
+    def create(self, model: T) -> T: ...
+    def get(self, id: UUID) -> T | None: ...
+    def update(self, model: T) -> T | None: ...
+    def delete(self, id: UUID) -> T | None: ...

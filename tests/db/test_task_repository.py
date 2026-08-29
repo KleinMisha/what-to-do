@@ -23,18 +23,6 @@ def clear_db(db_session: Session) -> None:
     Base.metadata.create_all(db_session.get_bind())
 
 
-@pytest.fixture()
-def mock_task() -> Task:
-    return Task(
-        id=uuid4(),
-        group_id=uuid4(),
-        title="Mock task",
-        description="This is a mock task that is super duper important. ",
-        project_id=uuid4(),
-        priority=Priority.HIGH,
-    )
-
-
 def test_create_task(db_session: Session, mock_task: Task) -> None:
     """Create a new Task model and place it in the database."""
     repo = TaskRepository(db_session)
@@ -164,3 +152,114 @@ def test_attempt_delete_unknown_task(db_session: Session) -> None:
     repo = TaskRepository(db_session)
     deleted_data = repo.delete(unknown_id)
     assert deleted_data is None
+
+
+def test_get_all_tasks(db_session: Session) -> None:
+    """Place two tasks in database, check that both are returned"""
+    item_1 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        title="One",
+        description="First entry",
+    )
+    item_2 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        title="Two",
+        description="Second entry",
+    )
+    repo = TaskRepository(db_session)
+    repo.create(item_1)
+    repo.create(item_2)
+    items = repo.get_all()
+    assert {item.id for item in items} == {item_1.id, item_2.id}
+
+
+def test_get_empty_task_list(db_session: Session) -> None:
+    """An empty list should get returned if no task is entered into database yet."""
+    repo = TaskRepository(db_session)
+    items = repo.get_all()
+    assert items == []
+
+
+def test_get_by_project_id(db_session: Session) -> None:
+    """Returns all tasks assigned to the given project."""
+    project_id = uuid4()
+
+    task_1 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        project_id=project_id,
+        title="Task 1",
+        description="First task",
+    )
+    task_2 = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        project_id=project_id,
+        title="Task 2",
+        description="Second task",
+    )
+    unrelated_task = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        project_id=uuid4(),
+        title="Other task",
+        description="Unrelated task",
+    )
+
+    repo = TaskRepository(db_session)
+    repo.create(task_1)
+    repo.create(task_2)
+    repo.create(unrelated_task)
+
+    tasks = repo.get_by_project_id(project_id)
+    assert {task.id for task in tasks} == {task_1.id, task_2.id}
+
+
+def test_get_by_project_id_no_tasks(db_session: Session) -> None:
+    """Returns an empty list when no tasks are assigned to the project."""
+    repo = TaskRepository(db_session)
+    tasks = repo.get_by_project_id(uuid4())
+    assert tasks == []
+
+
+def test_get_by_group_id(db_session: Session) -> None:
+    """Returns all tasks assigned to the given group."""
+    group_id = uuid4()
+
+    task_1 = Task(
+        id=uuid4(),
+        group_id=group_id,
+        project_id=None,
+        title="Task 1",
+        description="First task",
+    )
+    task_2 = Task(
+        id=uuid4(),
+        group_id=group_id,
+        project_id=None,
+        title="Task 2",
+        description="Second task",
+    )
+    unrelated_task = Task(
+        id=uuid4(),
+        group_id=uuid4(),
+        project_id=None,
+        title="Other task",
+        description="Unrelated task",
+    )
+
+    repo = TaskRepository(db_session)
+    repo.create(task_1)
+    repo.create(task_2)
+    repo.create(unrelated_task)
+    tasks = repo.get_by_group_id(group_id)
+    assert {task.id for task in tasks} == {task_1.id, task_2.id}
+
+
+def test_get_by_group_id_no_tasks(db_session: Session) -> None:
+    """Returns an empty list when no tasks are assigned to the group."""
+    repo = TaskRepository(db_session)
+    tasks = repo.get_by_group_id(uuid4())
+    assert tasks == []
