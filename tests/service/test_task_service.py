@@ -92,7 +92,7 @@ def test_create_task_before_group(mock_task: Task) -> None:
         projects=FakeRepository[Project](),
         groups=FakeRepository[Group](),
     )
-    with pytest.raises(InvalidAssignmentError):
+    with pytest.raises(ResourceNotFoundError):
         service.create(mock_task)
 
 
@@ -102,7 +102,7 @@ def test_create_task_before_project(
     """Cannot create a task before the project it belongs to is created first."""
     unknown_id = uuid4()
     mock_task.project_id = unknown_id
-    with pytest.raises(InvalidAssignmentError):
+    with pytest.raises(ResourceNotFoundError):
         service_w_group.create(mock_task)
 
 

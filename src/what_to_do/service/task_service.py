@@ -22,22 +22,7 @@ class TaskService:
 
     def create(self, task: Task) -> Task:
         """Create a new task"""
-        # Make sure the group is created prior.
-        group = self.groups.get(task.group_id)
-        if group is None:
-            raise InvalidAssignmentError(
-                f"Cannot create your task: Create your group {task.group_id} first."
-            )
-
-        # Make sure the project is created prior.
-        if task.project_id is not None:
-            project = self.projects.get(task.project_id)
-            if project is None:
-                raise InvalidAssignmentError(
-                    f"Cannot create your task: Create your project {task.project_id} first."
-                )
-
-        # Check consistency of assignments.
+        # Check validity of assignments.
         self._validate_task_assignment(
             task_id=task.id,
             project_id=task.project_id,
