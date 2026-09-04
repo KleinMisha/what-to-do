@@ -66,9 +66,9 @@ def update_task(
     service: TaskService = Depends(get_task_service),
 ) -> TaskResponse:
     """Update a Task's data"""
-    task = task_from_request(request, task_id=task_id)
-    updated = service.update_info(task)
-    return task_to_response(updated)
+    before_update = task_from_request(request, task_id=task_id)
+    after_update = service.update_info(before_update)
+    return task_to_response(after_update)
 
 
 @router.delete(
@@ -88,7 +88,7 @@ def delete_task(
     response_model=TaskResponse,
     status_code=status.HTTP_200_OK,
 )
-def change_task_group(
+def change_task_level_group(
     task_id: UUID,
     request: TaskGroupRequest,
     service: TaskService = Depends(get_task_service),
@@ -108,7 +108,7 @@ def change_task_group(
     response_model=TaskResponse,
     status_code=status.HTTP_200_OK,
 )
-def change_task_project(
+def change_task_level_project(
     task_id: UUID,
     request: TaskProjectRequest,
     service: TaskService = Depends(get_task_service),
