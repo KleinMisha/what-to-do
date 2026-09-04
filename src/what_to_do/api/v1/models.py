@@ -76,6 +76,15 @@ class ProjectRequest(BaseModel):
     group_id: UUID
 
 
+class ProjectDeleteRequest(BaseModel):
+    """
+    Info needed to delete a project.
+    Rule for underlying tasks.
+    """
+
+    keep_tasks: bool
+
+
 class ProjectGroupRequest(BaseModel):
     """When assigning to a different group."""
 
