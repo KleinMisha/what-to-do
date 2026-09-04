@@ -14,10 +14,11 @@ class ProjectRepository(Repository[Project, DBProject]):
 
     db_model = DBProject
 
-    def get_by_group_id(self, group_id: UUID) -> list[DBProject]:
+    def get_by_group_id(self, group_id: UUID) -> list[Project]:
         """Get all projects assigned to a given group."""
         query = select(self.db_model).where(self.db_model.group_id == group_id)
-        return list(self.db.scalars(query).all())
+        db_entries = self.db.scalars(query).all()
+        return [self._to_domain(entry) for entry in db_entries]
 
     def _to_db(self, model: Project) -> DBProject:
         return DBProject(
