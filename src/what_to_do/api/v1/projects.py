@@ -110,7 +110,7 @@ def change_project_level_group(
     response_model=list[TaskResponse],
     status_code=status.HTTP_200_OK,
 )
-def get_all_tasks(
+def get_tasks(
     project_id: UUID, service: ProjectService = Depends(get_project_service)
 ) -> list[TaskResponse]:
     """list all tasks assigned to a given project"""
