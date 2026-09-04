@@ -27,3 +27,7 @@ testpaths = ["tests"]
 [tool.coverage.run]
 source = ["src"]
 omit = ["tests/*", "*/__init__.py"]
+
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
