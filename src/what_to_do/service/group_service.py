@@ -82,6 +82,10 @@ class GroupService:
         self._get_or_raise(group_id)
         return self.projects.get_by_group_id(group_id)
 
+    def get_all(self) -> list[Group]:
+        """Fetch all groups stored in the repository"""
+        return self.groups.get_all()
+
     def _get_or_raise(self, id: UUID) -> Group:
         """Retrieve group from repository or raise if it does not exist."""
         group = self.groups.get(id)

@@ -95,6 +95,10 @@ class ProjectService:
         self._get_or_raise(project_id)
         return self.tasks.get_by_project_id(project_id)
 
+    def get_all(self) -> list[Project]:
+        """Fetch all projects stored in the repository"""
+        return self.projects.get_all()
+
     def _get_or_raise(self, id: UUID) -> Project:
         """Retrieve project from repository or raise if it does not exist."""
         project = self.projects.get(id)

@@ -72,6 +72,10 @@ class TaskService:
         self._get_or_raise(task.id)
         return self._change_assignment(task, project_id=None, group_id=task.group_id)
 
+    def get_all(self) -> list[Task]:
+        """Fetch all tasks stored in the repository"""
+        return self.tasks.get_all()
+
     def _get_or_raise(self, id: UUID) -> Task:
         """Retrieve task from repository or raise if it does not exist."""
         task = self.tasks.get(id)

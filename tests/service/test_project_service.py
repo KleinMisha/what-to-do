@@ -261,3 +261,25 @@ def test_list_tasks_empty(
     )
     result = service.list_tasks(mock_project.id)
     assert result == []
+
+
+def test_get_all_projects(
+    service_w_group: ProjectService, mock_project: Project
+) -> None:
+    """Place two projects in database, check that both are returned"""
+    item_1 = Project(
+        id=uuid4(),
+        group_id=mock_project.group_id,
+        name="One",
+        description="First entry",
+    )
+    item_2 = Project(
+        id=uuid4(),
+        group_id=mock_project.group_id,
+        name="Two",
+        description="Second entry",
+    )
+    service_w_group.create(item_1)
+    service_w_group.create(item_2)
+    items = service_w_group.get_all()
+    assert {item.id for item in items} == {item_1.id, item_2.id}

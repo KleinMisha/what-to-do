@@ -35,3 +35,6 @@ class FakeRepository[T: HasID]:
         idx = self.items.index(existing_resource)
         self.items[idx] = model
         return model
+
+    def get_all(self) -> list[T]:
+        return self.items

@@ -1,44 +1,13 @@
 """Unit tests for /src/what_to_do/service/task_service.py"""
 
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 
+from tests.service.fake_repository import FakeRepository
 from what_to_do.core.exceptions import InvalidAssignmentError, ResourceNotFoundError
 from what_to_do.service.task_service import TaskService
-from what_to_do.tasks.models import Group, HasID, Priority, Project, Task
-
-
-class FakeRepository[T: HasID]:
-    """Repository that stores items in-memory in a simple list"""
-
-    def __init__(self, items: list[T] | None = None) -> None:
-        self.items = items or []
-
-    def create(self, model: T) -> T:
-        self.items.append(model)
-        return model
-
-    def get(self, id: UUID) -> T | None:
-        return next(
-            (item for item in self.items if item.id == id),
-            None,
-        )
-
-    def delete(self, id: UUID) -> T | None:
-        existing_resource = self.get(id)
-        if existing_resource is None:
-            return None
-        self.items.remove(existing_resource)
-        return existing_resource
-
-    def update(self, model: T) -> T | None:
-        existing_resource = self.get(model.id)
-        if existing_resource is None:
-            return None
-        idx = self.items.index(existing_resource)
-        self.items[idx] = model
-        return model
+from what_to_do.tasks.models import Group, Priority, Project, Task
 
 
 @pytest.fixture
@@ -314,3 +283,23 @@ def test_cannot_mutate_unknown_task(
     mock_task.description = "Updated description"
     with pytest.raises(ResourceNotFoundError):
         service_w_group.update_info(mock_task)
+
+
+def test_get_all_tasks(service_w_group: TaskService, mock_task: Task) -> None:
+    """Place two tasks in database, check that both are returned"""
+    item_1 = Task(
+        id=uuid4(),
+        group_id=mock_task.group_id,
+        title="One",
+        description="First entry",
+    )
+    item_2 = Task(
+        id=uuid4(),
+        group_id=mock_task.group_id,
+        title="Two",
+        description="Second entry",
+    )
+    service_w_group.create(item_1)
+    service_w_group.create(item_2)
+    items = service_w_group.get_all()
+    assert {item.id for item in items} == {item_1.id, item_2.id}
