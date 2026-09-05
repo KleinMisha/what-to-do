@@ -14,15 +14,17 @@ class TaskRepository(Repository[Task, DBTask]):
 
     db_model = DBTask
 
-    def get_by_project_id(self, project_id: UUID) -> list[DBTask]:
+    def get_by_project_id(self, project_id: UUID) -> list[Task]:
         """Get all tasks assigned to a given project."""
         query = select(self.db_model).where(self.db_model.project_id == project_id)
-        return list(self.db.scalars(query).all())
+        db_entries = self.db.scalars(query).all()
+        return [self._to_domain(entry) for entry in db_entries]
 
-    def get_by_group_id(self, group_id: UUID) -> list[DBTask]:
+    def get_by_group_id(self, group_id: UUID) -> list[Task]:
         """Get all tasks assigned to a given group."""
         query = select(self.db_model).where(self.db_model.group_id == group_id)
-        return list(self.db.scalars(query).all())
+        db_entries = self.db.scalars(query).all()
+        return [self._to_domain(entry) for entry in db_entries]
 
     def _to_db(self, model: Task) -> DBTask:
         """Convert into sqlmodel"""

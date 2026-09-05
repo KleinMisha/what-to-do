@@ -1,6 +1,7 @@
 """Generate database session"""
 
 from collections.abc import Generator
+from functools import lru_cache
 
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -8,6 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from what_to_do.core.settings import get_settings
 
 
+@lru_cache
 def get_engine() -> Engine:
     settings = get_settings()
     return create_engine(settings.db_url)

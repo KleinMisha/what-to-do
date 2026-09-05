@@ -13,7 +13,7 @@ class WhatToDoSettings(BaseSettings):
 
     app_name: str = "what-to-do"
     backend_port: int = 8000
-    backend_api_version: str = "1"
+    backend_api_version: str = "v1"
     db_name: str = "my_tasks.db"
 
     @property
@@ -22,6 +22,11 @@ class WhatToDoSettings(BaseSettings):
         base_dir = Path(__file__)
         project_root = base_dir.parent.parent.parent.parent
         return f"sqlite:///{project_root / 'db' / self.db_name}"
+
+    @property
+    def api_url_prefix(self) -> str:
+        """Common part of API's URL."""
+        return f"/api/{self.backend_api_version}"
 
 
 def get_settings() -> WhatToDoSettings:
