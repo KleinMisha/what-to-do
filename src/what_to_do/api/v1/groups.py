@@ -68,7 +68,7 @@ def update_group(
     service: GroupService = Depends(get_group_service),
 ) -> GroupResponse:
     """Update a Group's data"""
-    before_update = service.get(group_id)
+    before_update = group_from_request(request, group_id=group_id)
     after_update = service.update_info(before_update)
     return group_to_response(after_update)
 
