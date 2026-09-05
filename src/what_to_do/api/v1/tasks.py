@@ -37,6 +37,15 @@ def get_task_service(db: Session = Depends(get_db)) -> TaskService:
     )
 
 
+@router.get("", response_model=list[TaskResponse], status_code=status.HTTP_200_OK)
+def get_all_tasks(
+    service: TaskService = Depends(get_task_service),
+) -> list[TaskResponse]:
+    """Fetch all tasks stored"""
+    tasks = service.get_all()
+    return [task_to_response(task) for task in tasks]
+
+
 @router.get("/{task_id}", response_model=TaskResponse, status_code=status.HTTP_200_OK)
 def get_task(
     task_id: UUID,

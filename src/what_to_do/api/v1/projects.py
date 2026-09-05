@@ -39,6 +39,15 @@ def get_project_service(db: Session = Depends(get_db)) -> ProjectService:
     )
 
 
+@router.get("", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
+def get_all_tasks(
+    service: ProjectService = Depends(get_project_service),
+) -> list[ProjectResponse]:
+    """Fetch all tasks stored"""
+    projects = service.get_all()
+    return [project_to_response(project) for project in projects]
+
+
 @router.get(
     "/{project_id}", response_model=ProjectResponse, status_code=status.HTTP_200_OK
 )
