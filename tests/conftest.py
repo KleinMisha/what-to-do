@@ -9,9 +9,17 @@ from sqlalchemy import Engine, StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from what_to_do.api.server import app
+from what_to_do.core.settings import get_settings
 from what_to_do.db.database import get_db
 from what_to_do.db.schema import Base
 from what_to_do.tasks.models import Group, Project, Task
+
+
+@pytest.fixture
+def api_prefix() -> str:
+    """expose API prefix"""
+    settings = get_settings()
+    return settings.api_url_prefix
 
 
 @pytest.fixture()

@@ -12,30 +12,27 @@ from what_to_do.core.exceptions import (
 
 
 @pytest.mark.parametrize(
-    ("url"),
-    [
-        "/api/v1/groups",
-        "/api/v1/projects",
-        "/api/v1/tasks",
-    ],
+    ("resource"),
+    ["groups", "projects", "tasks"],
 )
 def test_missing_resource_returns_404(
     client: TestClient,
-    url: str,
+    api_prefix: str,
+    resource: str,
 ) -> None:
     """Return 404 when requesting a nonexistent resource."""
 
-    response = client.get(f"{url}/{uuid4()}")
+    response = client.get(f"{api_prefix}/{resource}/{uuid4()}")
 
     assert response.status_code == ERROR_STATUS_CODES[ResourceNotFoundError]
     assert response.json()["error"] == ResourceNotFoundError.__name__
 
 
-def test_task_cannot_use_missing_group(client: TestClient) -> None:
+def test_task_cannot_use_missing_group(client: TestClient, api_prefix: str) -> None:
     """Return 404 when creating a task with a nonexistent group."""
 
     response = client.post(
-        "/api/v1/tasks",
+        f"{api_prefix}/tasks",
         json={
             "title": "Task",
             "description": "Description",
@@ -48,12 +45,12 @@ def test_task_cannot_use_missing_group(client: TestClient) -> None:
     assert response.json()["error"] == ResourceNotFoundError.__name__
 
 
-def test_task_cannot_use_missing_project(client: TestClient) -> None:
+def test_task_cannot_use_missing_project(client: TestClient, api_prefix: str) -> None:
     """Return 404 when creating a task with a nonexistent project."""
 
     # Create a valid group.
     group_response = client.post(
-        "/api/v1/groups",
+        f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
     assert group_response.status_code == 201
@@ -61,7 +58,7 @@ def test_task_cannot_use_missing_project(client: TestClient) -> None:
 
     # Attempt to create a task with a nonexistent project.
     response = client.post(
-        "/api/v1/tasks",
+        f"{api_prefix}/tasks",
         json={
             "title": "Task",
             "description": "Description",
@@ -76,19 +73,20 @@ def test_task_cannot_use_missing_project(client: TestClient) -> None:
 
 def test_task_cannot_use_project_from_different_group(
     client: TestClient,
+    api_prefix: str,
 ) -> None:
     """Return 409 when a task and project belong to different groups."""
 
     # Create two groups.
     group_a_response = client.post(
-        "/api/v1/groups",
+        f"{api_prefix}/groups",
         json={"name": "Group A"},
     )
     assert group_a_response.status_code == 201
     group_a: dict[str, Any] = group_a_response.json()
 
     group_b_response = client.post(
-        "/api/v1/groups",
+        f"{api_prefix}/groups",
         json={"name": "Group B"},
     )
     assert group_b_response.status_code == 201
@@ -96,7 +94,7 @@ def test_task_cannot_use_project_from_different_group(
 
     # Create a project in group B.
     project_response = client.post(
-        "/api/v1/projects",
+        f"{api_prefix}/projects",
         json={
             "name": "Project",
             "description": "Project description",
@@ -108,7 +106,7 @@ def test_task_cannot_use_project_from_different_group(
 
     # Attempt to create a task in group A using the project from group B.
     response = client.post(
-        "/api/v1/tasks",
+        f"{api_prefix}/tasks",
         json={
             "title": "Task",
             "description": "Description",
@@ -121,19 +119,21 @@ def test_task_cannot_use_project_from_different_group(
     assert response.json()["error"] == InvalidAssignmentError.__name__
 
 
-def test_invalid_uuid_returns_422(client: TestClient) -> None:
+def test_invalid_uuid_returns_422(client: TestClient, api_prefix: str) -> None:
     """Return 422 when a path parameter is not a valid UUID."""
 
-    response = client.get("/api/v1/tasks/not-a-uuid")
+    response = client.get(f"{api_prefix}/tasks/not-a-uuid")
 
     assert response.status_code == 422
 
 
-def test_missing_required_field_returns_422(client: TestClient) -> None:
+def test_missing_required_field_returns_422(
+    client: TestClient, api_prefix: str
+) -> None:
     """Return 422 when a required request field is missing."""
 
     response = client.post(
-        "/api/v1/groups",
+        f"{api_prefix}/groups",
         json={},
     )
 
