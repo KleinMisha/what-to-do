@@ -7,8 +7,8 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from what_to_do.api.errors import ERROR_STATUS_CODES
 from what_to_do.api.health import router as health_check
-from what_to_do.api.v1.errors import error_to_code
 from what_to_do.api.v1.groups import router as group_router
 from what_to_do.api.v1.projects import router as project_router
 from what_to_do.api.v1.tasks import router as task_router
@@ -63,7 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(group_router, prefix=f"{settings.api_url_prefix}/groups")
 
     # register exception handlers
-    for error, status_code in error_to_code.items():
+    for error, status_code in ERROR_STATUS_CODES.items():
         app.add_exception_handler(error, handler=create_exception_handler(status_code))
 
     return app
