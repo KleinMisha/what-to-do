@@ -39,6 +39,15 @@ def get_group_service(db: Session = Depends(get_db)) -> GroupService:
     )
 
 
+@router.get("", response_model=list[GroupResponse], status_code=status.HTTP_200_OK)
+def get_all_tasks(
+    service: GroupService = Depends(get_group_service),
+) -> list[GroupResponse]:
+    """Fetch all tasks stored"""
+    groups = service.get_all()
+    return [group_to_response(group) for group in groups]
+
+
 @router.get("/{group_id}", response_model=GroupResponse, status_code=status.HTTP_200_OK)
 def get_group(
     group_id: UUID,
