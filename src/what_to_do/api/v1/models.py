@@ -103,7 +103,7 @@ def project_from_request(request: ProjectRequest, *, project_id: UUID) -> Projec
         id=project_id,
         group_id=request.group_id,
         name=request.name,
-        description=request.description,
+        description=request.description or None,
     )
 
 

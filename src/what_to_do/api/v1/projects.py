@@ -90,11 +90,14 @@ def update_project(
 )
 def delete_project(
     project_id: UUID,
-    request: ProjectDeleteRequest,
+    request: ProjectDeleteRequest | None = None,
     service: ProjectService = Depends(get_project_service),
 ) -> ProjectResponse:
     """Delete a project"""
-    project = service.delete(project_id, keep_tasks=request.keep_tasks)
+    project = service.delete(
+        project_id,
+        keep_tasks=request.keep_tasks if request else False,
+    )
     return project_to_response(project)
 
 
