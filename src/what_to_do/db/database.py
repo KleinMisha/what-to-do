@@ -1,6 +1,7 @@
 """Generate database session"""
 
 from collections.abc import Generator
+from contextlib import contextmanager
 from functools import lru_cache
 
 from sqlalchemy import Engine, create_engine
@@ -15,7 +16,8 @@ def get_engine() -> Engine:
     return create_engine(settings.db_url)
 
 
-def get_db() -> Generator[Session]:
+@contextmanager
+def db_session() -> Generator[Session]:
     engine = get_engine()
     SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
@@ -23,3 +25,9 @@ def get_db() -> Generator[Session]:
         yield db
     finally:
         db.close()
+
+
+def get_db() -> Generator[Session]:
+    """For FastAPI dependency injection"""
+    with db_session() as db:
+        yield db

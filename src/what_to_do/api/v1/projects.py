@@ -19,9 +19,7 @@ from what_to_do.api.v1.models import (
     task_to_response,
 )
 from what_to_do.db.database import get_db
-from what_to_do.db.group_repository import GroupRepository
-from what_to_do.db.project_repository import ProjectRepository
-from what_to_do.db.task_repository import TaskRepository
+from what_to_do.service.factory import create_project_service
 from what_to_do.service.project_service import ProjectService
 
 router = APIRouter(tags=["Projects"])
@@ -29,14 +27,7 @@ router = APIRouter(tags=["Projects"])
 
 def get_project_service(db: Session = Depends(get_db)) -> ProjectService:
     """Setup dependency injection using FastAPI."""
-    task_repo = TaskRepository(db)
-    project_repo = ProjectRepository(db)
-    group_repo = GroupRepository(db)
-    return ProjectService(
-        tasks=task_repo,
-        projects=project_repo,
-        groups=group_repo,
-    )
+    return create_project_service(db)
 
 
 @router.get("", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
