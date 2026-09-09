@@ -138,16 +138,16 @@ src/what_to_do/
 ### 1. Implement local clients
 - [x] Define `Client[T]` protocol
 - [x] Implement generic `LocalClient[T]`
-- [ ] Implement resource-specific local clients where needed
+- [x] Implement resource-specific local clients where needed
     - [x] `LocalTaskClient`
-    - [ ] `LocalProjectClient`
-- [ ] Keep groups on generic `LocalClient[Group]`
+    - [x] `LocalProjectClient`
+- [x] Keep groups on generic `LocalClient[Group]`
 - [ ] Add unit tests for clients
 - [ ] Verify local clients use existing services + SQLite repositories
 
 ### 2. Implement client factory
 - [ ] Centralize client selection
-- [ ] Initially support local clients only
+- [x] Initially support local clients only
 - [ ] Keep CLI/TUI unaware of concrete client implementations
 - [ ] Return `Client[T]` to callers
 
