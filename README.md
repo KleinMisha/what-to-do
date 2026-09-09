@@ -142,8 +142,8 @@ src/what_to_do/
     - [x] `LocalTaskClient`
     - [x] `LocalProjectClient`
 - [x] Keep groups on generic `LocalClient[Group]`
-- [ ] Add unit tests for clients
-- [ ] Verify local clients use existing services + SQLite repositories
+- [x] Add unit tests for clients
+- [x] Verify local clients use existing services + SQLite repositories
 
 ### 2. Implement client factory
 - [ ] Centralize client selection

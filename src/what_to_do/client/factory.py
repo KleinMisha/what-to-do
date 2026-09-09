@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from what_to_do.client.local_client import CRUDService, LocalClient
 from what_to_do.client.project_clients import LocalProjectClient
 from what_to_do.client.task_clients import LocalTaskClient
+from what_to_do.db.database import db_session
 from what_to_do.service.factory import (
     create_group_service,
     create_project_service,
@@ -42,11 +43,11 @@ LOCAL_CLIENT_FACTORIES: dict[ResourceType, LocalClientFactory] = {
 
 
 @contextmanager
-def local_client(resource: ResourceType, db: Session) -> Generator[LocalClient[Any]]:
+def local_client(resource: ResourceType) -> Generator[LocalClient[Any]]:
     """Setup a local client for resource"""
 
     service_factory = SERVICE_FACTORIES[resource]
     client_factory = LOCAL_CLIENT_FACTORIES[resource]
-
-    service = service_factory(db)
-    yield client_factory(service)
+    with db_session() as db:
+        service = service_factory(db)
+        yield client_factory(service)
