@@ -24,6 +24,9 @@ class FakeProjectService(FakeLocalService[Project]):
     def list_tasks(self, project_id: UUID) -> list[Task]:
         return []
 
+    def delete(self, id: UUID, keep_tasks: bool = False) -> Project:
+        return super().delete(id)
+
 
 @pytest.fixture
 def client() -> LocalProjectClient:

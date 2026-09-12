@@ -12,6 +12,7 @@ class ProjectService(CRUDService[Project], Protocol):
 
     def assign_to_new_group(self, project: Project, *, group_id: UUID) -> Project: ...
     def list_tasks(self, project_id: UUID) -> list[Task]: ...
+    def delete(self, id: UUID, keep_tasks: bool = False) -> Project: ...
 
 
 class LocalProjectClient(LocalClient[Project]):
@@ -27,3 +28,6 @@ class LocalProjectClient(LocalClient[Project]):
 
     def list_tasks(self, id: UUID) -> list[Task]:
         return self.service.list_tasks(id)
+
+    def delete(self, id: UUID, keep_tasks: bool = False) -> Project:
+        return self.service.delete(id, keep_tasks)
