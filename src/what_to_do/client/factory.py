@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from what_to_do.client.group_clients import LocalGroupClient
 from what_to_do.client.local_client import CRUDService, LocalClient
 from what_to_do.client.project_clients import LocalProjectClient
 from what_to_do.client.task_clients import LocalTaskClient
@@ -15,7 +16,7 @@ from what_to_do.service.factory import (
     create_project_service,
     create_task_service,
 )
-from what_to_do.tasks.models import Group, ResourceType
+from what_to_do.tasks.models import ResourceType
 
 type ServiceFactory = Callable[[Session], CRUDService[Any]]
 type LocalClientFactory = Callable[[Any], LocalClient[Any]]
@@ -31,7 +32,7 @@ SERVICE_FACTORIES: dict[ResourceType, ServiceFactory] = {
 LOCAL_CLIENT_FACTORIES: dict[ResourceType, LocalClientFactory] = {
     ResourceType.TASKS: LocalTaskClient,
     ResourceType.PROJECTS: LocalProjectClient,
-    ResourceType.GROUPS: lambda service: LocalClient(service, Group),
+    ResourceType.GROUPS: LocalGroupClient,
 }
 
 
