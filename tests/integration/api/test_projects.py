@@ -3,11 +3,11 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 
-def test_project_lifecycle(client: TestClient, api_prefix: str) -> None:
+def test_project_lifecycle(api_client: TestClient, api_prefix: str) -> None:
     """Create, retrieve, and update a project."""
 
     # Create a group for the project.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -15,7 +15,7 @@ def test_project_lifecycle(client: TestClient, api_prefix: str) -> None:
     group: dict[str, Any] = group_response.json()
 
     # Create the project.
-    response = client.post(
+    response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -28,12 +28,12 @@ def test_project_lifecycle(client: TestClient, api_prefix: str) -> None:
     project_id = project["id"]
 
     # Retrieve the project.
-    response = client.get(f"{api_prefix}/projects/{project_id}")
+    response = api_client.get(f"{api_prefix}/projects/{project_id}")
     assert response.status_code == 200
     assert response.json() == project
 
     # Update the project.
-    response = client.put(
+    response = api_client.put(
         f"{api_prefix}/projects/{project_id}",
         json={
             "name": "New Website",
@@ -47,11 +47,11 @@ def test_project_lifecycle(client: TestClient, api_prefix: str) -> None:
     assert updated_project["description"] == "Updated website"
 
 
-def test_list_all_projects(client: TestClient, api_prefix: str) -> None:
+def test_list_all_projects(api_client: TestClient, api_prefix: str) -> None:
     """Get all projects."""
 
     # Create a group for the projects.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -59,7 +59,7 @@ def test_list_all_projects(client: TestClient, api_prefix: str) -> None:
     group: dict[str, Any] = group_response.json()
 
     # Create two projects.
-    project_1_response = client.post(
+    project_1_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -70,7 +70,7 @@ def test_list_all_projects(client: TestClient, api_prefix: str) -> None:
     assert project_1_response.status_code == 201
     project_1: dict[str, Any] = project_1_response.json()
 
-    project_2_response = client.post(
+    project_2_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Garden",
@@ -82,7 +82,7 @@ def test_list_all_projects(client: TestClient, api_prefix: str) -> None:
     project_2: dict[str, Any] = project_2_response.json()
 
     # Perform GET call on /projects.
-    response = client.get(f"{api_prefix}/projects")
+    response = api_client.get(f"{api_prefix}/projects")
 
     # Assert that both projects are returned.
     assert response.status_code == 200
@@ -93,18 +93,18 @@ def test_list_all_projects(client: TestClient, api_prefix: str) -> None:
     }
 
 
-def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> None:
+def test_project_move_moves_its_tasks(api_client: TestClient, api_prefix: str) -> None:
     """Moving a project to another group also moves its tasks."""
 
     # Create two groups.
-    group_a_response = client.post(
+    group_a_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Group A"},
     )
     assert group_a_response.status_code == 201
     group_a: dict[str, Any] = group_a_response.json()
 
-    group_b_response = client.post(
+    group_b_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Group B"},
     )
@@ -112,7 +112,7 @@ def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> No
     group_b: dict[str, Any] = group_b_response.json()
 
     # Create a project in group A.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -124,7 +124,7 @@ def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> No
     project: dict[str, Any] = project_response.json()
 
     # Create a task assigned to the project.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -137,7 +137,7 @@ def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> No
     task: dict[str, Any] = task_response.json()
 
     # Move the project to group B.
-    response = client.patch(
+    response = api_client.patch(
         f"{api_prefix}/projects/{project['id']}/group",
         json={"group_id": group_b["id"]},
     )
@@ -145,7 +145,7 @@ def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> No
     assert response.json()["group_id"] == group_b["id"]
 
     # Verify that the task was moved with the project.
-    response = client.get(f"{api_prefix}/tasks/{task['id']}")
+    response = api_client.get(f"{api_prefix}/tasks/{task['id']}")
     assert response.status_code == 200
     moved_task: dict[str, Any] = response.json()
     assert moved_task["group_id"] == group_b["id"]
@@ -153,12 +153,12 @@ def test_project_move_moves_its_tasks(client: TestClient, api_prefix: str) -> No
 
 
 def test_delete_project_removes_tasks_by_default(
-    client: TestClient, api_prefix: str
+    api_client: TestClient, api_prefix: str
 ) -> None:
     """Deleting a project deletes its tasks by default."""
 
     # Create a group.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -166,7 +166,7 @@ def test_delete_project_removes_tasks_by_default(
     group: dict[str, Any] = group_response.json()
 
     # Create a project.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -178,7 +178,7 @@ def test_delete_project_removes_tasks_by_default(
     project: dict[str, Any] = project_response.json()
 
     # Create a task assigned to the project.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -191,19 +191,19 @@ def test_delete_project_removes_tasks_by_default(
     task: dict[str, Any] = task_response.json()
 
     # Delete the project.
-    response = client.delete(f"{api_prefix}/projects/{project['id']}")
+    response = api_client.delete(f"{api_prefix}/projects/{project['id']}")
     assert response.status_code == 200
 
     # Verify that both project and task were deleted.
-    assert client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
-    assert client.get(f"{api_prefix}/tasks/{task['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/tasks/{task['id']}").status_code == 404
 
 
-def test_delete_project_can_keep_tasks(client: TestClient, api_prefix: str) -> None:
+def test_delete_project_can_keep_tasks(api_client: TestClient, api_prefix: str) -> None:
     """Deleting a project can preserve its tasks without their assignment."""
 
     # Create a group.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -211,7 +211,7 @@ def test_delete_project_can_keep_tasks(client: TestClient, api_prefix: str) -> N
     group: dict[str, Any] = group_response.json()
 
     # Create a project.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -223,7 +223,7 @@ def test_delete_project_can_keep_tasks(client: TestClient, api_prefix: str) -> N
     project: dict[str, Any] = project_response.json()
 
     # Create a task assigned to the project.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -236,7 +236,7 @@ def test_delete_project_can_keep_tasks(client: TestClient, api_prefix: str) -> N
     task: dict[str, Any] = task_response.json()
 
     # Delete the project while keeping its tasks.
-    response = client.request(
+    response = api_client.request(
         "DELETE",
         f"{api_prefix}/projects/{project['id']}",
         json={"keep_tasks": True},
@@ -244,21 +244,21 @@ def test_delete_project_can_keep_tasks(client: TestClient, api_prefix: str) -> N
     assert response.status_code == 200
 
     # Verify that the project was deleted.
-    assert client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
 
     # Verify that the task was preserved and unassigned.
-    response = client.get(f"{api_prefix}/tasks/{task['id']}")
+    response = api_client.get(f"{api_prefix}/tasks/{task['id']}")
     assert response.status_code == 200
     preserved_task: dict[str, Any] = response.json()
     assert preserved_task["project_id"] is None
     assert preserved_task["group_id"] == group["id"]
 
 
-def test_list_project_tasks(client: TestClient, api_prefix: str) -> None:
+def test_list_project_tasks(api_client: TestClient, api_prefix: str) -> None:
     """Get all tasks assigned to a project."""
 
     # Create a group.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -266,7 +266,7 @@ def test_list_project_tasks(client: TestClient, api_prefix: str) -> None:
     group: dict[str, Any] = group_response.json()
 
     # Create a project.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -278,7 +278,7 @@ def test_list_project_tasks(client: TestClient, api_prefix: str) -> None:
     project: dict[str, Any] = project_response.json()
 
     # Create two tasks assigned to the project.
-    task_1_response = client.post(
+    task_1_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -290,7 +290,7 @@ def test_list_project_tasks(client: TestClient, api_prefix: str) -> None:
     assert task_1_response.status_code == 201
     task_1: dict[str, Any] = task_1_response.json()
 
-    task_2_response = client.post(
+    task_2_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "About page",
@@ -303,7 +303,7 @@ def test_list_project_tasks(client: TestClient, api_prefix: str) -> None:
     task_2: dict[str, Any] = task_2_response.json()
 
     # Get all tasks assigned to the project.
-    response = client.get(f"{api_prefix}/projects/{project['id']}/tasks")
+    response = api_client.get(f"{api_prefix}/projects/{project['id']}/tasks")
 
     # Assert that both tasks are returned.
     assert response.status_code == 200

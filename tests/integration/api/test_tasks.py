@@ -3,11 +3,11 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 
-def test_task_lifecycle(client: TestClient, api_prefix: str) -> None:
+def test_task_lifecycle(api_client: TestClient, api_prefix: str) -> None:
     """Create, retrieve, update, delete a task."""
 
     # Create a group for the task.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -15,7 +15,7 @@ def test_task_lifecycle(client: TestClient, api_prefix: str) -> None:
     group: dict[str, Any] = group_response.json()
 
     # Create the task.
-    response = client.post(
+    response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Build homepage",
@@ -29,12 +29,12 @@ def test_task_lifecycle(client: TestClient, api_prefix: str) -> None:
     task_id = task["id"]
 
     # Retrieve the task.
-    response = client.get(f"{api_prefix}/tasks/{task_id}")
+    response = api_client.get(f"{api_prefix}/tasks/{task_id}")
     assert response.status_code == 200
     assert response.json() == task
 
     # Update the task.
-    response = client.put(
+    response = api_client.put(
         f"{api_prefix}/tasks/{task_id}",
         json={
             "title": "Build new homepage",
@@ -49,20 +49,20 @@ def test_task_lifecycle(client: TestClient, api_prefix: str) -> None:
     assert updated_task["description"] == "Updated description"
 
     # Delete the task
-    response = client.delete(f"{api_prefix}/tasks/{task_id}")
+    response = api_client.delete(f"{api_prefix}/tasks/{task_id}")
     assert response.status_code == 200
     deleted_task: dict[str, Any] = response.json()
     assert deleted_task == updated_task
 
     # get should fail
-    assert client.get(f"{api_prefix}/tasks/{task_id}").status_code == 404
+    assert api_client.get(f"{api_prefix}/tasks/{task_id}").status_code == 404
 
 
-def test_list_all_tasks(client: TestClient, api_prefix: str) -> None:
+def test_list_all_tasks(api_client: TestClient, api_prefix: str) -> None:
     """Get all tasks."""
 
     # Create a group for the tasks.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -70,7 +70,7 @@ def test_list_all_tasks(client: TestClient, api_prefix: str) -> None:
     group: dict[str, Any] = group_response.json()
 
     # Create two tasks.
-    task_1_response = client.post(
+    task_1_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Task 1",
@@ -82,7 +82,7 @@ def test_list_all_tasks(client: TestClient, api_prefix: str) -> None:
     assert task_1_response.status_code == 201
     task_1: dict[str, Any] = task_1_response.json()
 
-    task_2_response = client.post(
+    task_2_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Task 2",
@@ -95,7 +95,7 @@ def test_list_all_tasks(client: TestClient, api_prefix: str) -> None:
     task_2: dict[str, Any] = task_2_response.json()
 
     # Perform GET call on /tasks.
-    response = client.get(f"{api_prefix}/tasks")
+    response = api_client.get(f"{api_prefix}/tasks")
 
     # Assert that both tasks are returned.
     assert response.status_code == 200
@@ -106,18 +106,18 @@ def test_list_all_tasks(client: TestClient, api_prefix: str) -> None:
     }
 
 
-def test_task_can_move_between_groups(client: TestClient, api_prefix: str) -> None:
+def test_task_can_move_between_groups(api_client: TestClient, api_prefix: str) -> None:
     """Move a task from one group to another."""
 
     # Create two groups.
-    group_a_response = client.post(
+    group_a_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Group A"},
     )
     assert group_a_response.status_code == 201
     group_a: dict[str, Any] = group_a_response.json()
 
-    group_b_response = client.post(
+    group_b_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Group B"},
     )
@@ -125,7 +125,7 @@ def test_task_can_move_between_groups(client: TestClient, api_prefix: str) -> No
     group_b: dict[str, Any] = group_b_response.json()
 
     # Create a task in group A.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Task",
@@ -138,7 +138,7 @@ def test_task_can_move_between_groups(client: TestClient, api_prefix: str) -> No
     task: dict[str, Any] = task_response.json()
 
     # Move the task to group B.
-    response = client.patch(
+    response = api_client.patch(
         f"{api_prefix}/tasks/{task['id']}/group",
         json={
             "group_id": group_b["id"],
@@ -150,13 +150,13 @@ def test_task_can_move_between_groups(client: TestClient, api_prefix: str) -> No
 
 
 def test_task_can_be_assigned_and_unassigned_from_project(
-    client: TestClient,
+    api_client: TestClient,
     api_prefix: str,
 ) -> None:
     """Assign a task to a project and subsequently remove the assignment."""
 
     # Create a group.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -164,7 +164,7 @@ def test_task_can_be_assigned_and_unassigned_from_project(
     group: dict[str, Any] = group_response.json()
 
     # Create a project.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -176,7 +176,7 @@ def test_task_can_be_assigned_and_unassigned_from_project(
     project: dict[str, Any] = project_response.json()
 
     # Create an unassigned task.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -189,7 +189,7 @@ def test_task_can_be_assigned_and_unassigned_from_project(
     task: dict[str, Any] = task_response.json()
 
     # Assign the task to the project.
-    response = client.patch(
+    response = api_client.patch(
         f"{api_prefix}/tasks/{task['id']}/project",
         json={"project_id": project["id"]},
     )
@@ -197,7 +197,7 @@ def test_task_can_be_assigned_and_unassigned_from_project(
     assert response.json()["project_id"] == project["id"]
 
     # Remove the project assignment.
-    response = client.patch(
+    response = api_client.patch(
         f"{api_prefix}/tasks/{task['id']}/project",
         json={"project_id": None},
     )
