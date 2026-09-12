@@ -12,12 +12,6 @@ app.add_typer(projects_app, name="projects", help="Manage projects")
 app.add_typer(groups_app, name="groups", help="Manage task/project groups")
 
 
-@app.command()
-def hello() -> None:
-    """Say hello"""
-    echo("Hello from what-to-do!")
-
-
 def main() -> None:
     """What To Do CLI entrypoint."""
     app()
