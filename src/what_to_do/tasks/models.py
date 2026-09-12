@@ -7,9 +7,15 @@ Domain level data models:
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, auto
 from typing import Protocol
 from uuid import UUID
+
+
+class ResourceType(Enum):
+    TASKS = auto()
+    PROJECTS = auto()
+    GROUPS = auto()
 
 
 class Priority(Enum):
