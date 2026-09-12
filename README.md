@@ -91,7 +91,6 @@ what-to-do
 ```
 
 ## Repo tree 
-
 ```
 src/what_to_do/
 │
@@ -111,12 +110,16 @@ src/what_to_do/
 │   │   ├── projects.py
 │   │   ├── groups.py
 │   │   └── config.py
-│   ├── clients/
-│   │   ├── client.py
-│   │   ├── local.py
-│   │   └── remote.py
 │   └── messages/
 │       └── ...
+│
+├── client/
+│   ├── client.py
+│   ├── local_client.py
+│   ├── remote_client.py
+│   ├── task_client.py
+│   ├── project_client.py
+│   └── factory.py
 │
 ├── core/
 │   ├── settings.py
@@ -133,6 +136,7 @@ src/what_to_do/
 └── domain/
     └── ...
 ```
+
 ## Implementation Plan
 
 ### 1. Implement local clients
