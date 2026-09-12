@@ -1,4 +1,4 @@
-from typer import Typer, echo
+from typer import Typer
 
 from what_to_do.cli.routing.groups import app as groups_app
 from what_to_do.cli.routing.projects import app as projects_app
