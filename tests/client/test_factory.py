@@ -1,7 +1,4 @@
-"""Double-check that creation of a local Groups client works as intended.
-
-#! REMOVE IF LocalGroupsClient ever becomes a thing more than LocalClient[Groups]
-"""
+"""Double-check that creation of a local Groups client works as intended."""
 
 from uuid import uuid4
 
