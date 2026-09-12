@@ -2,7 +2,6 @@
 
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
-from enum import StrEnum
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -22,13 +21,7 @@ type ServiceFactory = Callable[[Session], CRUDService[Any]]
 type LocalClientFactory = Callable[[Any], LocalClient[Any]]
 
 
-class ClientType(StrEnum):
-    LOCAL = "local"
-    REMOTE = "remote"
-
-
 # Local Client construction
-
 SERVICE_FACTORIES: dict[ResourceType, ServiceFactory] = {
     ResourceType.TASKS: create_task_service,
     ResourceType.PROJECTS: create_project_service,

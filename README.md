@@ -146,7 +146,7 @@ src/what_to_do/
 - [x] Verify local clients use existing services + SQLite repositories
 
 ### 2. Implement client factory
-- [ ] Centralize client selection
+- [x] Centralize client selection
 - [x] Initially support local clients only
 - [ ] Keep CLI/TUI unaware of concrete client implementations
 - [ ] Return `Client[T]` to callers
