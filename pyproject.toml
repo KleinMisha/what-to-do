@@ -40,3 +40,10 @@ omit = ["tests/*", "*/__init__.py"]
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["fastapi.Depends"]
 
+[tool.coverage.report]
+exclude_lines = [
+    "if __name__ == .__main__.:", 
+    "pass", 
+    "@abstractmethod",
+    "app()",
+]

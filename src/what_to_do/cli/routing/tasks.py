@@ -56,8 +56,13 @@ def get(id: Annotated[UUID, Argument(help="Task ID.")]) -> None:
 def create(
     title: Annotated[str, Option("--title", "-t", help="Name of the task.")],
     group_id: Annotated[
-        UUID,
-        Option("--group_id", "--gid", help="ID of the group this task falls under. "),
+        UUID | None,
+        Option(
+            "--group",
+            "--group_id",
+            "--gid",
+            help="ID of the group this task falls under. ",
+        ),
     ],
     description: Annotated[
         str | None, Option("--description", "-d", help="Detailed description. ")
@@ -65,7 +70,10 @@ def create(
     project_id: Annotated[
         UUID | None,
         Option(
-            "--project_id", "--pid", help="ID of the project this task falls under. "
+            "--project",
+            "--project_id",
+            "--pid",
+            help="ID of the project this task falls under. ",
         ),
     ] = None,
     priority: Annotated[
@@ -97,34 +105,35 @@ def create(
 @app.command()
 def update(
     task_id: Annotated[UUID, Argument(help="Task ID.")],
-    title: Annotated[str, Option("--title", "-t", help="Task's name")],
+    title: Annotated[str | None, Option("--title", "-t", help="Task's name")] = None,
     description: Annotated[
-        str, Option("--description", "-d", help="Detailed description. ")
-    ],
+        str | None, Option("--description", "-d", help="Detailed description. ")
+    ] = None,
     group_id: Annotated[
-        UUID,
+        UUID | None,
         Option("--group_id", "--gid", help="ID of the group this task falls under. "),
-    ],
+    ] = None,
     project_id: Annotated[
-        UUID,
+        UUID | None,
         Option(
             "--project_id", "--pid", help="ID of the project this task falls under. "
         ),
-    ],
+    ] = None,
     priority: Annotated[
-        Priority, Option("--priority", "-p", help="Priority level")
-    ] = Priority.LOW,
+        Priority | None, Option("--priority", "-p", help="Priority level")
+    ] = None,
 ) -> None:
     """Update an existing task's info."""
     try:
         with local_client(ResourceType.TASKS) as client:
+            original: Task = client.get(task_id)
             updated: Task = client.update(
                 task_id,
-                title=title,
-                description=description,
-                group_id=group_id,
-                project_id=project_id,
-                priority=priority,
+                title=title or original.title,
+                description=description or original.description,
+                group_id=group_id or original.group_id,
+                project_id=project_id or original.project_id,
+                priority=priority or original.priority,
             )
 
         echo(f"Updated task: \n {render_task(updated)}")
@@ -154,32 +163,52 @@ def delete(id: Annotated[UUID, Argument(help="Task ID.")]) -> None:
 def assign(
     id: Annotated[UUID, Argument(help="Task ID.")],
     group: Annotated[
-        UUID,
+        UUID | None,
         Option(
             "--group",
-            help="Group ID.",
+            "--group_id",
+            "-g",
+            help="Group ID. If not supplied, the task stays in the same group.",
         ),
-    ],
+    ] = None,
     project: Annotated[
         UUID | None,
         Option(
             "--project",
-            help="Project ID. If not entered, the task will be unassigned from it's current project. ",
+            "--project_id",
+            "-p",
+            help="Project ID. If not supplied, the task will be unassigned from it's current project. ",
         ),
-    ],
+    ] = None,
+    no_project: Annotated[
+        bool,
+        Option(
+            "--no-project",
+            help="Unassign from (current) project. Equivalent to ommiting the `--project` flag.",
+        ),
+    ] = False,
 ) -> None:
     """Move a project to a different project / group
 
     Also use this to unassign a task from a project and stay within the same group.
     """
     try:
+        if no_project:
+            project = None
+
         with local_client(ResourceType.TASKS) as client:
             assert isinstance(client, LocalTaskClient)
-            updated = client.assign(task_id=id, project_id=project, group_id=group)
+            original: Task = client.get(id)
+
+            updated = client.assign(
+                task_id=id,
+                project_id=project,
+                group_id=group or original.group_id,
+            )
 
         echo(f"Updated task: \n {render_task(updated)}")
         raise Exit(code=0)
 
-    except InvalidAssignmentError as e:
+    except (InvalidAssignmentError, ResourceNotFoundError) as e:
         echo(f"{type(e).__name__} : {e!s}")
         raise Exit(code=1)

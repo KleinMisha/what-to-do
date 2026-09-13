@@ -187,17 +187,17 @@ src/what_to_do/
 - [ ] Configure local database path
 
 ### 7. Implement CLI entrypoint
-- [ ] Create main Typer app
-- [ ] Register command groups
-- [ ] Configure client selection
-- [ ] Keep entrypoint free of command/business logic
+- [x] Create main Typer app
+- [x] Register command groups
+- [x] Configure client selection
+- [x] Keep entrypoint free of command/business logic
 
 ### 8. CLI integration tests
-- [ ] Use Typer `CliRunner` to invoke the actual application
-- [ ] Test exit codes, output, input, routing, and wiring
-- [ ] Use the same test database infrastructure/configuration as the API integration tests
-- [ ] Test meaningful end-to-end CLI flows
-- [ ] Don’t duplicate service tests
+- [x] Use Typer `CliRunner` to invoke the actual application
+- [x] Test exit codes, output, input, routing, and wiring
+- [x] Use the same test database infrastructure/configuration as the API integration tests
+- [x] Test meaningful end-to-end CLI flows
+- [x] Don’t duplicate service tests
 
 ### 9. Local CLI installation
 - [ ] Expose the CLI as an installed executable
