@@ -164,11 +164,11 @@ src/what_to_do/
 - [ ] Output formatting
 
 ### 4. Implement project routing
-- [ ] Typer command group
-- [ ] Argument/option handling
-- [ ] Prompting
-- [ ] Client calls
-- [ ] CLI error handling
+- [x] Typer command group
+- [x] Argument/option handling
+- [x] Prompting
+- [x] Client calls
+- [x] CLI error handling
 - [ ] Output formatting
 
 ### 5. Implement group routing
