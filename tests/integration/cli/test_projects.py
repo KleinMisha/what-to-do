@@ -289,3 +289,31 @@ def test_list_project_tasks(cli_client: CliRunner) -> None:
     # Assert that both tasks are returned.
     assert str(task_1) in result.stdout
     assert str(task_2) in result.stdout
+
+
+def test_list_empty(cli_client: CliRunner) -> None:
+    """when no resources to list, simply display a message."""
+    result = cli_client.invoke(app, ["projects", "list"])
+    assert result.exit_code == 0
+    assert result.stdout != ""
+
+
+def test_list_no_tasks(cli_client: CliRunner) -> None:
+    """when no lists assigned, simply display a message"""
+
+    # Create a group.
+    result = cli_client.invoke(app, ["groups", "create", "--name", "CLI test group"])
+    group_id = parse_id(result.stdout)
+    assert group_id is not None
+
+    # Create a project.
+    result = cli_client.invoke(
+        app, ["projects", "create", "--name", "CLI test", "--group_id", str(group_id)]
+    )
+    project_id = parse_id(result.stdout)
+    assert project_id is not None
+
+    # list tasks (none available)
+    result = cli_client.invoke(app, ["projects", "tasks", str(project_id)])
+    assert result.exit_code == 0
+    assert result.stdout != 0

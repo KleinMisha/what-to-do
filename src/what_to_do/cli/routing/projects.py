@@ -85,7 +85,9 @@ def create(
 @app.command()
 def update(
     project_id: Annotated[UUID, Argument(help="Project ID.")],
-    name: Annotated[str, Option("--name", "-n", help="Name of the project.")],
+    name: Annotated[
+        str | None, Option("--name", "-n", help="Name of the project.")
+    ] = None,
     group_id: Annotated[
         UUID | None,
         Option(

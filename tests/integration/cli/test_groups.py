@@ -96,3 +96,29 @@ def test_delete_group_cascades_projects_and_tasks(cli_client: CliRunner) -> None
     assert cli_client.invoke(app, ["groups", "get", str(group_id)]).exit_code == 1
     assert cli_client.invoke(app, ["projects", "get", str(project_id)]).exit_code == 1
     assert cli_client.invoke(app, ["tasks", "get", str(task_id)]).exit_code == 1
+
+
+def test_list_empty(cli_client: CliRunner) -> None:
+    """when no resources to list, simply display a message."""
+    result = cli_client.invoke(app, ["groups", "list"])
+    assert result.exit_code == 0
+    assert result.stdout != ""
+
+
+def test_list_groups(cli_client: CliRunner) -> None:
+    """Create two groups and list them."""
+    result = cli_client.invoke(app, ["groups", "create", "--name", "First"])
+    first_group = parse_id(result.stdout)
+
+    result = cli_client.invoke(app, ["groups", "create", "--name", "Second"])
+    second_group = parse_id(result.stdout)
+
+    # Check both IDs are in the list
+    result = cli_client.invoke(app, ["groups", "list"])
+
+    print(result.stdout)
+    print(result.stderr)
+    assert result.exit_code == 0
+    assert all(
+        str(group_id) in result.stdout for group_id in [first_group, second_group]
+    )
