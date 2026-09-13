@@ -63,13 +63,19 @@ def create(
 @app.command()
 def update(
     id: Annotated[UUID, Argument(help="Group ID.")],
-    name: Annotated[str, Option("--name", "-n", help="Name of the group.")],
+    name: Annotated[
+        str | None, Option("--name", "-n", help="Name of the group.")
+    ] = None,
 ) -> None:
     """Update an existing group's info."""
 
     try:
         with local_client(ResourceType.GROUPS) as client:
-            updated: Group = client.update(id, name=name)
+            original: Group = client.get(id)
+            updated: Group = client.update(
+                id,
+                name=name or original.name,
+            )
 
             echo(f"Updated group: \n {render_group(updated)}")
             raise Exit(code=0)

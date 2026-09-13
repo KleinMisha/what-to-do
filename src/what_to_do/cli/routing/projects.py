@@ -86,27 +86,29 @@ def create(
 def update(
     project_id: Annotated[UUID, Argument(help="Project ID.")],
     name: Annotated[str, Option("--name", "-n", help="Name of the project.")],
-    description: Annotated[
-        str, Option("--description", "-d", help="Detailed description. ")
-    ],
     group_id: Annotated[
-        UUID,
+        UUID | None,
         Option(
             "--group_id", "--gid", help="ID of the group this project falls under. "
         ),
-    ],
+    ] = None,
+    description: Annotated[
+        str | None, Option("--description", "-d", help="Detailed description. ")
+    ] = None,
 ) -> None:
     """Create an existing project."""
     try:
         with local_client(ResourceType.PROJECTS) as client:
-            new: Project = client.update(
+            original: Project = client.get(project_id)
+
+            updated: Project = client.update(
                 project_id,
-                name=name,
-                description=description,
-                group_id=group_id,
+                name=name or original.name,
+                description=description or original.description,
+                group_id=group_id or original.group_id,
             )
 
-        echo(f"Updated project: \n {render_project(new)}")
+        echo(f"Updated project: \n {render_project(updated)}")
         raise Exit(code=0)
 
     except ResourceNotFoundError as e:

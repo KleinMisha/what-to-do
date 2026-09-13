@@ -1,27 +1,9 @@
 """Workflows centered around invoking the `groups` command group."""
 
-import re
-from uuid import UUID
-
 from typer.testing import CliRunner
 
+from tests.integration.cli.helpers import contains_uuid, parse_id
 from what_to_do.cli.entrypoint import app
-
-
-def parse_id(entry: str) -> UUID | None:
-    """
-    Extract a UUID from a string."
-    """
-    _uuid = re.compile(
-        r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
-    )
-    match = _uuid.search(entry)
-    return UUID(match.group(0)) if match else None
-
-
-def contains_uuid(text: str) -> bool:
-    """Determine if a given text indeed contains any UUID"""
-    return parse_id(text) is not None
 
 
 def test_group_lifecycle(cli_client: CliRunner) -> None:
