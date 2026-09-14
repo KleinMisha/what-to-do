@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 from typer import Argument, Exit, Option, Typer, echo
 
 from what_to_do.cli.helpers import TOOL_NAME, render_group, render_project, render_task
-from what_to_do.client.factory import ResourceType, local_client
+from what_to_do.client.factory import ResourceType, get_client
 from what_to_do.client.group_clients import LocalGroupClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Group, Project, Task
@@ -18,7 +18,7 @@ app = Typer(name="groups")
 def list_groups() -> None:
     """Display all available groups."""
 
-    with local_client(ResourceType.GROUPS) as client:
+    with get_client(ResourceType.GROUPS) as client:
         groups: list[Group] = client.get_all()
 
     if not groups:
@@ -36,7 +36,7 @@ def list_groups() -> None:
 def get(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
     """Get info for a given Group."""
     try:
-        with local_client(ResourceType.GROUPS) as client:
+        with get_client(ResourceType.GROUPS) as client:
             group = client.get(id)
 
         echo(render_group(group))
@@ -53,7 +53,7 @@ def create(
 ) -> None:
     """Create a new group."""
     group_id = uuid4()
-    with local_client(ResourceType.GROUPS) as client:
+    with get_client(ResourceType.GROUPS) as client:
         new: Group = client.create(group_id, name=name)
 
         echo(f"Created new group: \n {render_group(new)}")
@@ -70,7 +70,7 @@ def update(
     """Update an existing group's info."""
 
     try:
-        with local_client(ResourceType.GROUPS) as client:
+        with get_client(ResourceType.GROUPS) as client:
             original: Group = client.get(id)
             updated: Group = client.update(
                 id,
@@ -89,7 +89,7 @@ def update(
 def delete(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
     """Delete a group."""
     try:
-        with local_client(ResourceType.GROUPS) as client:
+        with get_client(ResourceType.GROUPS) as client:
             deleted: Group = client.delete(id)
 
         echo(f"Deleted group: \n {render_group(deleted)}")
@@ -105,7 +105,7 @@ def list_tasks(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
     """List all tasks assigned to a group."""
 
     try:
-        with local_client(ResourceType.GROUPS) as client:
+        with get_client(ResourceType.GROUPS) as client:
             assert isinstance(client, LocalGroupClient)
             tasks: list[Task] = client.list_tasks(id)
 
@@ -127,7 +127,7 @@ def list_projects(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
     """List all projects assigned to a group."""
 
     try:
-        with local_client(ResourceType.GROUPS) as client:
+        with get_client(ResourceType.GROUPS) as client:
             assert isinstance(client, LocalGroupClient)
             projects: list[Project] = client.list_projects(id)
 

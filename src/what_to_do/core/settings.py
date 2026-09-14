@@ -9,7 +9,7 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 
 
-class ClientType(StrEnum):
+class ClientMode(StrEnum):
     LOCAL = "local"
     REMOTE = "remote"
 
@@ -28,7 +28,7 @@ class WhatToDoSettings(BaseSettings):
     db_name: str = "my_tasks.db"
 
     # CLIENT - CLI / TUI
-    client_type: ClientType = ClientType.LOCAL
+    client_mode: ClientMode = ClientMode.LOCAL
 
     @property
     def db_url(self) -> str:

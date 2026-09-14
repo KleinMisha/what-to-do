@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 from typer import Argument, Exit, Option, Typer, echo
 
 from what_to_do.cli.helpers import TOOL_NAME, render_task
-from what_to_do.client.factory import ResourceType, local_client
+from what_to_do.client.factory import ResourceType, get_client
 from what_to_do.client.task_clients import LocalTaskClient
 from what_to_do.core.exceptions import InvalidAssignmentError, ResourceNotFoundError
 from what_to_do.tasks.models import Priority, Task
@@ -24,7 +24,7 @@ def list_tasks() -> None:
     NOTE: For now just only show the task' title. Can format later
     """
 
-    with local_client(ResourceType.TASKS) as client:
+    with get_client(ResourceType.TASKS) as client:
         tasks: list[Task] = client.get_all()
 
     if not tasks:
@@ -41,7 +41,7 @@ def list_tasks() -> None:
 def get(id: Annotated[UUID, Argument(help="Task ID.")]) -> None:
     """Get info for a given task."""
     try:
-        with local_client(ResourceType.TASKS) as client:
+        with get_client(ResourceType.TASKS) as client:
             task = client.get(id)
 
         echo(render_task(task))
@@ -85,7 +85,7 @@ def create(
     """
     try:
         task_id = uuid4()
-        with local_client(ResourceType.TASKS) as client:
+        with get_client(ResourceType.TASKS) as client:
             new: Task = client.create(
                 task_id,
                 title=title,
@@ -125,7 +125,7 @@ def update(
 ) -> None:
     """Update an existing task's info."""
     try:
-        with local_client(ResourceType.TASKS) as client:
+        with get_client(ResourceType.TASKS) as client:
             original: Task = client.get(task_id)
             updated: Task = client.update(
                 task_id,
@@ -148,7 +148,7 @@ def update(
 def delete(id: Annotated[UUID, Argument(help="Task ID.")]) -> None:
     """Delete a task"""
     try:
-        with local_client(ResourceType.TASKS) as client:
+        with get_client(ResourceType.TASKS) as client:
             deleted = client.delete(id)
 
         echo(f"Deleted task: \n {render_task(deleted)}")
@@ -196,7 +196,7 @@ def assign(
         if no_project:
             project = None
 
-        with local_client(ResourceType.TASKS) as client:
+        with get_client(ResourceType.TASKS) as client:
             assert isinstance(client, LocalTaskClient)
             original: Task = client.get(id)
 
