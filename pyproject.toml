@@ -12,6 +12,7 @@ dependencies = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "sqlalchemy>=2.0.52",
+    "tomli-w>=1.2.0",
     "typer>=0.27.2",
     "uvicorn>=0.52.4",
 ]
