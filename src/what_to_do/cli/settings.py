@@ -6,6 +6,7 @@ Hence, using 'vanilla' pydantic BaseModel rather than pydantic-settings model.
 """
 
 import tomllib
+from enum import StrEnum
 from pathlib import Path
 from shutil import rmtree
 from typing import Any
@@ -18,11 +19,16 @@ from what_to_do.cli.exceptions import (
     InvalidSettingsValueError,
     SettingsFileError,
 )
-from what_to_do.client.factory import ClientMode
 
 SETTINGS_DIR = Path().home() / ".config" / "what-to-do"
 SETTINGS_FILE_PATH = SETTINGS_DIR / "config.toml"
 DB_DIR = Path().home() / ".local" / "share" / "what-to-do"
+
+
+# Client selection
+class ClientMode(StrEnum):
+    LOCAL = "local"
+    REMOTE = "remote"
 
 
 class CLISettings(BaseModel):
@@ -48,6 +54,11 @@ def get_cli_settings(settings_path: Path = SETTINGS_FILE_PATH) -> CLISettings:
     return CLISettings(**file_settings)
 
 
+def get_default_cli_settings() -> CLISettings:
+    """Default CLI configuration."""
+    return CLISettings()
+
+
 def save_cli_settings(
     settings: CLISettings, settings_file: Path = SETTINGS_FILE_PATH
 ) -> None:
@@ -64,15 +75,22 @@ def save_cli_settings(
     print(f"Wrote settings into {settings_file!s}")
 
 
-def show_cli_settings(settings_path: Path = SETTINGS_FILE_PATH) -> None:
+def show_cli_settings(
+    settings_path: Path = SETTINGS_FILE_PATH, incl_defaults: bool = False
+) -> None:
     """Display current settings"""
 
     print("==== Current settings ====")
     settings = get_cli_settings(settings_path)
-    settings.model_dump_json()
+    print(settings.model_dump_json())
+
+    if incl_defaults:
+        print("==== Default settings ====")
+        defaults = get_default_cli_settings()
+        print(defaults.model_dump_json())
 
 
-def set_cli_setting(
+def configure_cli_setting(
     key: str, value: str, settings_path: Path = SETTINGS_FILE_PATH
 ) -> CLISettings:
     """adjust value in settings"""

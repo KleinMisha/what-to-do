@@ -2,12 +2,11 @@
 
 from collections.abc import Callable, Generator
 from contextlib import AbstractContextManager, contextmanager
-from enum import StrEnum
 from typing import Any
 
 from sqlalchemy.orm import Session
 
-from what_to_do.cli.settings import get_cli_settings
+from what_to_do.cli.settings import ClientMode, get_cli_settings
 from what_to_do.client.client import Client
 from what_to_do.client.group_clients import LocalGroupClient
 from what_to_do.client.local_client import CRUDService, LocalClient
@@ -27,12 +26,6 @@ type LocalClientFactory = Callable[[Any], LocalClient[Any]]
 type RemoteClientFactory = Callable[[Any], RemoteClient[Any]]
 type ClientGenerator = Callable[[ResourceType], Client[Any]]
 type ClientContext = Callable[[ResourceType], AbstractContextManager[Client[Any]]]
-
-
-# Client selection
-class ClientMode(StrEnum):
-    LOCAL = "local"
-    REMOTE = "remote"
 
 
 # Local Client construction
