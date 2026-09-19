@@ -1,17 +1,11 @@
 """Shared configuration."""
 
-from enum import StrEnum
 from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 load_dotenv()
-
-
-class ClientMode(StrEnum):
-    LOCAL = "local"
-    REMOTE = "remote"
 
 
 class WhatToDoSettings(BaseSettings):
@@ -26,9 +20,6 @@ class WhatToDoSettings(BaseSettings):
 
     # DATABASE
     db_name: str = "my_tasks.db"
-
-    # CLIENT - CLI / TUI
-    client_mode: ClientMode = ClientMode.LOCAL
 
     @property
     def db_url(self) -> str:
