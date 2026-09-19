@@ -64,11 +64,6 @@ def save_cli_settings(
 ) -> None:
     """write settings to file"""
 
-    if not settings_file.exists():
-        raise SettingsFileError(
-            f"No persisted settings found. \n Expected location: {settings_file!s}"
-        )
-
     with settings_file.open("wb") as file:
         tomli_w.dump(settings.model_dump(mode="json"), file)
 
@@ -152,29 +147,23 @@ def delete_settings_dir(
     print(f"Deleted {settings_dir!s}")
 
 
-def delete_database(dry_run: bool = False) -> None:
-    """Delete the local database"""
-    settings = get_cli_settings()
-    db_file = settings.database_path
-    if dry_run:
-        print(f"[DRY-RUN] Would delete {db_file!s}")
-        return
+# def delete_database(dry_run: bool = False) -> None:
+#     """Delete the local database"""
+#     settings = get_cli_settings()
+#     db_file = settings.database_path
+#     if dry_run:
+#         print(f"[DRY-RUN] Would delete {db_file!s}")
+#         return
 
-    if not db_file.exists():
-        raise SettingsFileError(
-            f"No local database found. \n Expected location: {db_file!s}"
-        )
+#     if not db_file.exists():
+#         raise SettingsFileError(
+#             f"No local database found. \n Expected location: {db_file!s}"
+#         )
 
-    print(f"Deleted {db_file!s}")
-
-
-def ensure_database_dir(db_dir: Path = DB_DIR) -> None:
-    """Create the local cli application data directory."""
-    db_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Created {db_dir!s}")
+#     print(f"Deleted {db_file!s}")
 
 
-def ensure_settings_dir(settings_dir: Path = SETTINGS_DIR) -> None:
-    """Create the local cli configuration data directory."""
-    settings_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Created {settings_dir!s}")
+# def ensure_database_dir(db_dir: Path = DB_DIR) -> None:
+#     """Create the local cli application data directory."""
+#     db_dir.mkdir(parents=True, exist_ok=True)
+#     print(f"Created {db_dir!s}")
