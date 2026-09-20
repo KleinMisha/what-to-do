@@ -35,6 +35,14 @@ class CLISettings(BaseModel):
         """path to database file"""
         return DB_DIR / self.database_filename
 
+    @property
+    def database_url(self) -> str:
+        """construct database URL"""
+        if self.client_mode == ClientMode.LOCAL:
+            return f"sqlite:////{self.database_path}"
+        else:
+            raise NotImplementedError
+
 
 def get_cli_settings(settings_path: Path = SETTINGS_FILE_PATH) -> CLISettings:
     """Load CLI settings from defaults or TOML"""
