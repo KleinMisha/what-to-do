@@ -1,12 +1,12 @@
 """Creation of Clients"""
 
 from collections.abc import Callable, Generator
-from contextlib import AbstractContextManager, contextmanager
+from contextlib import contextmanager
+from enum import StrEnum
 from typing import Any
 
 from sqlalchemy.orm import Session
 
-from what_to_do.cli.settings import ClientMode, get_cli_settings
 from what_to_do.client.client import Client
 from what_to_do.client.group_clients import LocalGroupClient
 from what_to_do.client.local_client import CRUDService, LocalClient
@@ -25,7 +25,12 @@ type ServiceFactory = Callable[[Session], CRUDService[Any]]
 type LocalClientFactory = Callable[[Any], LocalClient[Any]]
 type RemoteClientFactory = Callable[[Any], RemoteClient[Any]]
 type ClientGenerator = Callable[[ResourceType], Client[Any]]
-type ClientContext = Callable[[ResourceType], AbstractContextManager[Client[Any]]]
+
+
+# Client selection
+class ClientMode(StrEnum):
+    LOCAL = "local"
+    REMOTE = "remote"
 
 
 # Local Client construction
@@ -43,23 +48,32 @@ LOCAL_CLIENT_FACTORIES: dict[ResourceType, LocalClientFactory] = {
 
 
 @contextmanager
-def get_local_client(resource: ResourceType) -> Generator[LocalClient[Any]]:
+def get_local_client(
+    resource: ResourceType,
+    db_url: str,
+) -> Generator[LocalClient[Any]]:
     """Setup a local client for resource"""
 
     service_factory = SERVICE_FACTORIES[resource]
     client_factory = LOCAL_CLIENT_FACTORIES[resource]
-    with db_session() as db:
+    with db_session(db_url) as db:
         service = service_factory(db)
         yield client_factory(service)
 
 
-CLIENT_CONTEXTS: dict[ClientMode, ClientContext] = {ClientMode.LOCAL: get_local_client}
-
-
 @contextmanager
-def get_client(resource: ResourceType) -> Generator[Client[Any]]:
+def get_client(
+    client_mode: ClientMode,
+    resource: ResourceType,
+    db_url: str,
+) -> Generator[Client[Any]]:
     """Generate / configure Client"""
-    settings = get_cli_settings()
-    context = CLIENT_CONTEXTS[settings.client_mode]
-    with context(resource) as client:
+    if client_mode == ClientMode.LOCAL:
+        context = get_local_client(resource, db_url)
+    else:
+        context = get_local_client(
+            resource, db_url
+        )  # Todo: replace with actual remote client later
+
+    with context as client:
         yield client

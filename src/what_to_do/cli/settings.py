@@ -6,7 +6,6 @@ Hence, using 'vanilla' pydantic BaseModel rather than pydantic-settings model.
 """
 
 import tomllib
-from enum import StrEnum
 from pathlib import Path
 from shutil import rmtree
 from typing import Any
@@ -19,16 +18,11 @@ from what_to_do.cli.exceptions import (
     InvalidSettingsValueError,
     SettingsFileError,
 )
+from what_to_do.client.factory import ClientMode
 
 SETTINGS_DIR = Path().home() / ".config" / "what-to-do"
 SETTINGS_FILE_PATH = SETTINGS_DIR / "config.toml"
 DB_DIR = Path().home() / ".local" / "share" / "what-to-do"
-
-
-# Client selection
-class ClientMode(StrEnum):
-    LOCAL = "local"
-    REMOTE = "remote"
 
 
 class CLISettings(BaseModel):

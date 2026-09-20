@@ -1,6 +1,12 @@
 """Helpers used by multiple command groups."""
 
-from what_to_do.tasks.models import Group, Project, Task
+from collections.abc import Generator
+from contextlib import contextmanager
+from typing import Any
+
+from what_to_do.cli.settings import get_cli_settings
+from what_to_do.client.factory import Client, get_client
+from what_to_do.tasks.models import Group, Project, ResourceType, Task
 
 # todo: adjust once settled on the actual tool name
 TOOL_NAME = "what-to-do"
@@ -25,3 +31,17 @@ def render_project(project: Project) -> str:
 
     # TODO make information more rich. Include options to show more / less
     return f"[{project.id}] \t {project.name}"
+
+
+@contextmanager
+def get_cli_client(
+    resource: ResourceType,
+) -> Generator[Client[Any]]:
+    """Configure the CLI client with CLI-specific settings."""
+    settings = get_cli_settings()
+    with get_client(
+        client_mode=settings.client_mode,
+        db_url=str(settings.database_path),
+        resource=resource,
+    ) as client:
+        yield client

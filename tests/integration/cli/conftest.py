@@ -25,7 +25,7 @@ def cli_client(
     """
 
     @contextmanager
-    def _override_db_session() -> Generator[Session]:
+    def _override_db_session(_: str) -> Generator[Session]:
         yield db_session
 
     monkeypatch.setattr("what_to_do.client.factory.db_session", _override_db_session)

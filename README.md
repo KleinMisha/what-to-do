@@ -83,9 +83,9 @@ what-to-do
 │   └── projects <id>
 │
 └── config
-    ├── get
-    ├── set
-    └── reset
+    ├── show [--file/-f ...]
+    ├── set <key> <value> [--file/-f ...]
+    └── reset [--file/-f ...]
 
 
 ```
@@ -152,8 +152,8 @@ src/what_to_do/
 ### 2. Implement client factory
 - [x] Centralize client selection
 - [x] Initially support local clients only
-- [ ] Keep CLI/TUI unaware of concrete client implementations
-- [ ] Return `Client[T]` to callers
+- [x] Keep CLI/TUI unaware of concrete client implementations
+- [x] Return `Client[T]` to callers
 
 ### 3. Implement task routing
 - [x] Typer command group
@@ -180,11 +180,10 @@ src/what_to_do/
 - [ ] Output formatting
 
 ### 6. Implement config routing
-- [ ] `get`
-- [ ] `set`
-- [ ] `reset`
-- [ ] Initially support local mode only
-- [ ] Configure local database path
+- [x] `show`
+- [x] `set`
+- [x] `reset`
+- [x] Configure local database path
 
 ### 7. Implement CLI entrypoint
 - [x] Create main Typer app

@@ -7,18 +7,15 @@ from functools import lru_cache
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from what_to_do.core.settings import get_settings
-
 
 @lru_cache
-def get_engine() -> Engine:
-    settings = get_settings()
-    return create_engine(settings.db_url)
+def get_engine(db_url: str) -> Engine:
+    return create_engine(db_url)
 
 
 @contextmanager
-def db_session() -> Generator[Session]:
-    engine = get_engine()
+def db_session(db_url: str) -> Generator[Session]:
+    engine = get_engine(db_url)
     SessionLocal = sessionmaker(bind=engine)
     db = SessionLocal()
     try:
@@ -27,7 +24,7 @@ def db_session() -> Generator[Session]:
         db.close()
 
 
-def get_db() -> Generator[Session]:
+def get_db(db_url: str) -> Generator[Session]:
     """For FastAPI dependency injection"""
-    with db_session() as db:
+    with db_session(db_url) as db:
         yield db

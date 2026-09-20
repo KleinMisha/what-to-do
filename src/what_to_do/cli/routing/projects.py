@@ -9,8 +9,13 @@ from uuid import UUID, uuid4
 
 from typer import Argument, Exit, Option, Typer, echo
 
-from what_to_do.cli.helpers import TOOL_NAME, render_project, render_task
-from what_to_do.client.factory import ResourceType, get_client
+from what_to_do.cli.helpers import (
+    TOOL_NAME,
+    get_cli_client,
+    render_project,
+    render_task,
+)
+from what_to_do.client.factory import ResourceType
 from what_to_do.client.project_clients import LocalProjectClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Project, Task
@@ -27,7 +32,7 @@ def list_projects() -> None:
     #TODO 1. list -a/--all or --long shows complete table including group id (or name), description , and more.
     """
 
-    with get_client(ResourceType.PROJECTS) as client:
+    with get_cli_client(ResourceType.PROJECTS) as client:
         projects: list[Project] = client.get_all()
 
     if not projects:
@@ -44,7 +49,7 @@ def list_projects() -> None:
 def get(id: Annotated[UUID, Argument(help="Project ID.")]) -> None:
     """Get info for a given Project."""
     try:
-        with get_client(ResourceType.PROJECTS) as client:
+        with get_cli_client(ResourceType.PROJECTS) as client:
             project = client.get(id)
 
         echo(render_project(project))
@@ -70,7 +75,7 @@ def create(
 ) -> None:
     """Create a new project."""
     project_id = uuid4()
-    with get_client(ResourceType.PROJECTS) as client:
+    with get_cli_client(ResourceType.PROJECTS) as client:
         new: Project = client.create(
             project_id,
             name=name,
@@ -100,7 +105,7 @@ def update(
 ) -> None:
     """Create an existing project."""
     try:
-        with get_client(ResourceType.PROJECTS) as client:
+        with get_cli_client(ResourceType.PROJECTS) as client:
             original: Project = client.get(project_id)
 
             updated: Project = client.update(
@@ -131,7 +136,7 @@ def delete(
 ) -> None:
 
     try:
-        with get_client(ResourceType.PROJECTS) as client:
+        with get_cli_client(ResourceType.PROJECTS) as client:
             assert isinstance(client, LocalProjectClient)
             deleted = client.delete(id, keep_tasks=keep_tasks)
 
@@ -158,7 +163,7 @@ def assign(
     ],
 ) -> None:
     try:
-        with get_client(ResourceType.PROJECTS) as client:
+        with get_cli_client(ResourceType.PROJECTS) as client:
             assert isinstance(client, LocalProjectClient)
             updated: Project = client.assign(project_id=id, group_id=group)
 
@@ -175,7 +180,7 @@ def list_tasks(id: Annotated[UUID, Argument(help="Project ID.")]) -> None:
     """List all tasks assigned to a project."""
 
     try:
-        with get_client(ResourceType.PROJECTS) as client:
+        with get_cli_client(ResourceType.PROJECTS) as client:
             assert isinstance(client, LocalProjectClient)
             tasks: list[Task] = client.list_tasks(id)
 
