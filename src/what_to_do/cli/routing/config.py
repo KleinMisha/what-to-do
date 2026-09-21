@@ -18,7 +18,7 @@ from what_to_do.cli.settings import (
     show_cli_settings,
 )
 
-app = Typer(name="config")
+app = Typer(name="config", no_args_is_help=True)
 
 
 @app.command("show")

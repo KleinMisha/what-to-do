@@ -20,7 +20,7 @@ from what_to_do.client.project_clients import LocalProjectClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Project, Task
 
-app = Typer(name="projects")
+app = Typer(name="projects", no_args_is_help=True)
 
 
 @app.command("list")

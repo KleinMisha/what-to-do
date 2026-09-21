@@ -17,7 +17,7 @@ from what_to_do.client.group_clients import LocalGroupClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Group, Project, Task
 
-app = Typer(name="groups")
+app = Typer(name="groups", no_args_is_help=True)
 
 
 @app.command("list")

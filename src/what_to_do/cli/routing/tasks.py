@@ -11,7 +11,7 @@ from what_to_do.client.task_clients import LocalTaskClient
 from what_to_do.core.exceptions import InvalidAssignmentError, ResourceNotFoundError
 from what_to_do.tasks.models import Priority, Task
 
-app = Typer(name="tasks")
+app = Typer(name="tasks", no_args_is_help=True)
 
 
 @app.command("list")
