@@ -82,7 +82,7 @@ def db_session(db_engine: Engine) -> Generator[Session]:
 
 # test app client with overwrites for database connections
 @pytest.fixture
-def client(db_session: Session) -> Generator[TestClient]:
+def api_client(db_session: Session) -> Generator[TestClient]:
     """Overwrite connections to database, while otherwise using the production application."""
 
     # Overwrite db session with the test session

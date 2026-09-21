@@ -3,10 +3,10 @@ from typing import Any
 from fastapi.testclient import TestClient
 
 
-def test_group_lifecycle(client: TestClient, api_prefix: str) -> None:
+def test_group_lifecycle(api_client: TestClient, api_prefix: str) -> None:
     """Create, retrieve, and update a group."""
     # Create a group.
-    response = client.post(
+    response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -18,13 +18,13 @@ def test_group_lifecycle(client: TestClient, api_prefix: str) -> None:
     assert group["name"] == "Personal"
 
     # Retrieve the group.
-    response = client.get(f"{api_prefix}/groups/{group_id}")
+    response = api_client.get(f"{api_prefix}/groups/{group_id}")
 
     assert response.status_code == 200
     assert response.json() == group
 
     # Update the group.
-    response = client.put(
+    response = api_client.put(
         f"{api_prefix}/groups/{group_id}",
         json={"name": "Work"},
     )
@@ -33,10 +33,12 @@ def test_group_lifecycle(client: TestClient, api_prefix: str) -> None:
     assert response.json()["name"] == "Work"
 
 
-def test_group_lists_projects_and_tasks(client: TestClient, api_prefix: str) -> None:
+def test_group_lists_projects_and_tasks(
+    api_client: TestClient, api_prefix: str
+) -> None:
     """List the projects and tasks belonging to a group."""
     # Create the group.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
@@ -44,7 +46,7 @@ def test_group_lists_projects_and_tasks(client: TestClient, api_prefix: str) -> 
     group: dict[str, Any] = group_response.json()
 
     # Create a project in the group.
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -56,7 +58,7 @@ def test_group_lists_projects_and_tasks(client: TestClient, api_prefix: str) -> 
     project: dict[str, Any] = project_response.json()
 
     # Create a task in the group and project.
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Build homepage",
@@ -69,31 +71,31 @@ def test_group_lists_projects_and_tasks(client: TestClient, api_prefix: str) -> 
     task: dict[str, Any] = task_response.json()
 
     # Verify that the group exposes its project.
-    response = client.get(f"{api_prefix}/groups/{group['id']}/projects")
+    response = api_client.get(f"{api_prefix}/groups/{group['id']}/projects")
 
     assert response.status_code == 200
     assert {item["id"] for item in response.json()} == {project["id"]}
 
     # Verify that the group exposes its task.
-    response = client.get(f"{api_prefix}/groups/{group['id']}/tasks")
+    response = api_client.get(f"{api_prefix}/groups/{group['id']}/tasks")
 
     assert response.status_code == 200
     assert {item["id"] for item in response.json()} == {task["id"]}
 
 
 def test_delete_group_cascades_projects_and_tasks(
-    client: TestClient, api_prefix: str
+    api_client: TestClient, api_prefix: str
 ) -> None:
     """Deleting a group also deletes its projects and tasks."""
     # Build a group hierarchy: group -> project -> task.
-    group_response = client.post(
+    group_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
     assert group_response.status_code == 201
     group: dict[str, Any] = group_response.json()
 
-    project_response = client.post(
+    project_response = api_client.post(
         f"{api_prefix}/projects",
         json={
             "name": "Website",
@@ -104,7 +106,7 @@ def test_delete_group_cascades_projects_and_tasks(
     assert project_response.status_code == 201
     project: dict[str, Any] = project_response.json()
 
-    task_response = client.post(
+    task_response = api_client.post(
         f"{api_prefix}/tasks",
         json={
             "title": "Homepage",
@@ -117,28 +119,28 @@ def test_delete_group_cascades_projects_and_tasks(
     task: dict[str, Any] = task_response.json()
 
     # Delete the group.
-    response = client.delete(f"{api_prefix}/groups/{group['id']}")
+    response = api_client.delete(f"{api_prefix}/groups/{group['id']}")
 
     assert response.status_code == 200
 
     # The entire hierarchy should now be gone.
-    assert client.get(f"{api_prefix}/groups/{group['id']}").status_code == 404
-    assert client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
-    assert client.get(f"{api_prefix}/tasks/{task['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/groups/{group['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/projects/{project['id']}").status_code == 404
+    assert api_client.get(f"{api_prefix}/tasks/{task['id']}").status_code == 404
 
 
-def test_list_all_groups(client: TestClient, api_prefix: str) -> None:
+def test_list_all_groups(api_client: TestClient, api_prefix: str) -> None:
     """Get all groups."""
 
     # Create two groups.
-    group_1_response = client.post(
+    group_1_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Personal"},
     )
     assert group_1_response.status_code == 201
     group_1: dict[str, Any] = group_1_response.json()
 
-    group_2_response = client.post(
+    group_2_response = api_client.post(
         f"{api_prefix}/groups",
         json={"name": "Work"},
     )
@@ -146,7 +148,7 @@ def test_list_all_groups(client: TestClient, api_prefix: str) -> None:
     group_2: dict[str, Any] = group_2_response.json()
 
     # Perform GET call on /groups.
-    response = client.get(f"{api_prefix}/groups")
+    response = api_client.get(f"{api_prefix}/groups")
 
     # Assert that both groups are returned.
     assert response.status_code == 200

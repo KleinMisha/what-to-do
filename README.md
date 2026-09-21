@@ -83,15 +83,14 @@ what-to-do
 │   └── projects <id>
 │
 └── config
-    ├── get
-    ├── set
-    └── reset
+    ├── show [--file/-f ...]
+    ├── set <key> <value> [--file/-f ...]
+    └── reset [--file/-f ...]
 
 
 ```
 
 ## Repo tree 
-
 ```
 src/what_to_do/
 │
@@ -111,12 +110,16 @@ src/what_to_do/
 │   │   ├── projects.py
 │   │   ├── groups.py
 │   │   └── config.py
-│   ├── clients/
-│   │   ├── client.py
-│   │   ├── local.py
-│   │   └── remote.py
 │   └── messages/
 │       └── ...
+│
+├── client/
+│   ├── client.py
+│   ├── local_client.py
+│   ├── remote_client.py
+│   ├── task_client.py
+│   ├── project_client.py
+│   └── factory.py
 │
 ├── core/
 │   ├── settings.py
@@ -133,6 +136,7 @@ src/what_to_do/
 └── domain/
     └── ...
 ```
+
 ## Implementation Plan
 
 ### 1. Implement local clients
@@ -148,52 +152,51 @@ src/what_to_do/
 ### 2. Implement client factory
 - [x] Centralize client selection
 - [x] Initially support local clients only
-- [ ] Keep CLI/TUI unaware of concrete client implementations
-- [ ] Return `Client[T]` to callers
+- [x] Keep CLI/TUI unaware of concrete client implementations
+- [x] Return `Client[T]` to callers
 
 ### 3. Implement task routing
-- [ ] Typer command group
-- [ ] Argument/option handling
-- [ ] Prompting
-- [ ] Client calls
-- [ ] CLI error handling
+- [x] Typer command group
+- [x] Argument/option handling
+- [x] Prompting
+- [x] Client calls
+- [x] CLI error handling
 - [ ] Output formatting
 
 ### 4. Implement project routing
-- [ ] Typer command group
-- [ ] Argument/option handling
-- [ ] Prompting
-- [ ] Client calls
-- [ ] CLI error handling
+- [x] Typer command group
+- [x] Argument/option handling
+- [x] Prompting
+- [x] Client calls
+- [x] CLI error handling
 - [ ] Output formatting
 
 ### 5. Implement group routing
-- [ ] Typer command group
-- [ ] Argument/option handling
-- [ ] Prompting
-- [ ] Client calls
-- [ ] CLI error handling
+- [x] Typer command group
+- [x] Argument/option handling
+- [x] Prompting
+- [x] Client calls
+- [x] CLI error handling
 - [ ] Output formatting
 
 ### 6. Implement config routing
-- [ ] `get`
-- [ ] `set`
-- [ ] `reset`
-- [ ] Initially support local mode only
-- [ ] Configure local database path
+- [x] `show`
+- [x] `set`
+- [x] `reset`
+- [x] Configure local database path
 
 ### 7. Implement CLI entrypoint
-- [ ] Create main Typer app
-- [ ] Register command groups
-- [ ] Configure client selection
-- [ ] Keep entrypoint free of command/business logic
+- [x] Create main Typer app
+- [x] Register command groups
+- [x] Configure client selection
+- [x] Keep entrypoint free of command/business logic
 
 ### 8. CLI integration tests
-- [ ] Use Typer `CliRunner` to invoke the actual application
-- [ ] Test exit codes, output, input, routing, and wiring
-- [ ] Use the same test database infrastructure/configuration as the API integration tests
-- [ ] Test meaningful end-to-end CLI flows
-- [ ] Don’t duplicate service tests
+- [x] Use Typer `CliRunner` to invoke the actual application
+- [x] Test exit codes, output, input, routing, and wiring
+- [x] Use the same test database infrastructure/configuration as the API integration tests
+- [x] Test meaningful end-to-end CLI flows
+- [x] Don’t duplicate service tests
 
 ### 9. Local CLI installation
 - [ ] Expose the CLI as an installed executable
