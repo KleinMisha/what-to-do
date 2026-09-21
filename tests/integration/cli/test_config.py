@@ -19,6 +19,25 @@ def config_path(tmp_path: Path) -> Path:
     return tmp_path / "config.toml"
 
 
+def settings_in_output(settings: CLISettings, output: str) -> bool:
+    """Loop over available settings and check that each of them appears in the output"""
+
+    lines: list[str] = [
+        f"{field}: \t {getattr(settings, field, '-')}"
+        for field in CLISettings.model_fields
+    ]
+    return "\n".join(lines) in output
+
+
+def count_settings_in_output(settings: CLISettings, output: str) -> int:
+    """Count number of times the formatted settings occur in the output"""
+    lines: list[str] = [
+        f"{field}: \t {getattr(settings, field, '-')}"
+        for field in CLISettings.model_fields
+    ]
+    return output.count("\n".join(lines))
+
+
 def test_show_current_settings(config_path: Path, cli_client: CliRunner) -> None:
     """Display settings with default values"""
     # populate config file:
@@ -37,7 +56,7 @@ def test_show_current_settings(config_path: Path, cli_client: CliRunner) -> None
 
     # validate output
     assert "Current settings" in result.stdout
-    assert current.model_dump_json() in result.stdout
+    assert settings_in_output(current, result.stdout)
     assert "Default settings" not in result.stdout
 
 
@@ -64,9 +83,9 @@ def test_show_settings_and_defaults(config_path: Path, cli_client: CliRunner) ->
 
     # validate output
     assert "Current settings" in result.stdout
-    assert current.model_dump_json() in result.stdout
+    assert settings_in_output(current, result.stdout)
     assert "Default settings" in result.stdout
-    assert defaults.model_dump_json() in result.stdout
+    assert settings_in_output(defaults, result.stdout)
 
 
 def test_current_settings_are_defaults_if_no_file_exists(
@@ -88,10 +107,11 @@ def test_current_settings_are_defaults_if_no_file_exists(
     )
 
     assert result.exit_code == 0
+    print(result.stdout)
 
     assert "Current settings" in result.stdout
     assert "Default settings" in result.stdout
-    assert result.stdout.count(defaults.model_dump_json()) == 2
+    assert count_settings_in_output(defaults, result.stdout) == 2
 
 
 def test_set_setting(cli_client: CliRunner, config_path: Path) -> None:
@@ -186,41 +206,3 @@ def test_set_setting_invalid_value(cli_client: CliRunner, config_path: Path) -> 
     assert "client_mode" in result.stdout
     assert "42" in result.stdout
     assert str(CLISettings.model_fields["client_mode"].annotation) in result.stdout
-
-
-# def test_set_setting_invalid_value(
-#     cli_runner: CliRunner,
-#     tmp_path: Path,
-# ) -> None:
-#     config_path = tmp_path / "settings.toml"
-
-#     result = cli_runner.invoke(
-#         app,
-#         [
-#             "set",
-#             "client_mode",
-#             "invalid",
-#             "--file",
-#             str(config_path),
-#         ],
-#     )
-
-#     assert result.exit_code == 1
-#     assert "Invalid value" in result.output
-
-
-# def test_reset_dry_run(
-#     cli_runner: CliRunner,
-#     tmp_path: Path,
-# ) -> None:
-#     config_path = tmp_path / "settings.toml"
-#     config_path.write_text("client_mode = 'remote'\n")
-
-#     result = cli_runner.invoke(
-#         app,
-#         ["reset", "--file", str(config_path), "--dry-run"],
-#     )
-
-#     assert result.exit_code == 0, result.output
-#     assert str(config_path) in result.output
-#     assert config_path.exists()

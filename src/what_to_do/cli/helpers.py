@@ -2,13 +2,9 @@
 
 from collections.abc import Generator
 from contextlib import contextmanager
-from dataclasses import fields
 from typing import Any
 
-from rich.table import Table
-
 from what_to_do.cli.settings import get_cli_settings
-from what_to_do.cli.themes import get_console
 from what_to_do.client.factory import Client, get_client
 from what_to_do.tasks.models import Group, Project, ResourceType, Task
 
@@ -35,27 +31,6 @@ def render_project(project: Project) -> str:
 
     # TODO make information more rich. Include options to show more / less
     return f"[{project.id}] \t {project.name}"
-
-
-type Resource = Group | Project | Task
-
-
-def render_resource_table(items: list[Resource]) -> None:
-    """Display table with given resources"""
-
-    # create table
-    resource_type = type(items[0])
-    table = Table(title=f"{resource_type.__name__}", header_style="heading")
-    for field in fields(resource_type):
-        table.add_column(field.name)
-
-    for item in items:
-        row_entry = [str(getattr(item, field.name)) for field in fields(resource_type)]
-        table.add_row(*row_entry)
-
-    # display to console
-    console = get_console()
-    console.print(table)
 
 
 @contextmanager

@@ -79,12 +79,17 @@ def show_cli_settings(
 
     print("==== Current settings ====")
     settings = get_cli_settings(settings_path)
-    print(settings.model_dump_json())
+    for field in CLISettings.model_fields:
+        print(f"{field}: \t {getattr(settings, field, '-')}")
+
+    # print(settings.model_dump_json())
 
     if incl_defaults:
+        print("\n")
         print("==== Default settings ====")
         defaults = get_default_cli_settings()
-        print(defaults.model_dump_json())
+        for field in CLISettings.model_fields:
+            print(f"{field}: \t {getattr(defaults, field, '-')}")
 
 
 def configure_cli_setting(
