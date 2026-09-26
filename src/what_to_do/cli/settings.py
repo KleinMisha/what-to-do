@@ -65,6 +65,7 @@ def save_cli_settings(
     settings: CLISettings, settings_file: Path = SETTINGS_FILE_PATH
 ) -> None:
     """write settings to file"""
+    _ensure_config_dir(settings_file)
 
     with settings_file.open("wb") as file:
         tomli_w.dump(settings.model_dump(mode="json"), file)
@@ -152,6 +153,17 @@ def delete_settings_dir(
 
     rmtree(settings_dir)
     print(f"Deleted {settings_dir!s}")
+
+
+def _ensure_config_dir(settings_file: Path = SETTINGS_FILE_PATH) -> None:
+    """Ensure config directory/file exist before writing into it."""
+    settings_dir = settings_file.parent
+    if not settings_dir.exists():
+        settings_dir.mkdir(parents=True, exist_ok=True)
+        print(f"✅ Created directory: {settings_dir}\n")
+    if not settings_file.exists():
+        settings_file.touch()
+        print(f"✅ Created file: {settings_file}\n")
 
 
 # def delete_database(dry_run: bool = False) -> None:
