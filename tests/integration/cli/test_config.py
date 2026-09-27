@@ -134,6 +134,25 @@ def test_set_setting(cli_client: CliRunner, config_path: Path) -> None:
     assert persisted_config.remote_api_url == defaults.remote_api_url
 
 
+def test_set_creates_dir_and_file(cli_client: CliRunner, tmp_path: Path) -> None:
+    """First invocation of the save method (via setting a value) will create the file and directory"""
+
+    # Start with non-existing file
+    config_file = tmp_path / "what_to_do" / "config.toml"
+    assert not config_file.exists()
+    assert not config_file.parent.exists()
+
+    # Invoke CLI to write into file
+    result = cli_client.invoke(
+        app, ["config", "set", "client_mode", "local", "-f", str(config_file)]
+    )
+    assert result.exit_code == 0
+
+    # Now directory and file should exist
+    assert config_file.parent.is_dir()
+    assert config_file.is_file()
+
+
 def test_reset(cli_client: CliRunner, config_path: Path) -> None:
     """Restore defaults"""
     # modify
