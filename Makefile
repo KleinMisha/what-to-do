@@ -17,3 +17,5 @@ uninstall-cli:
 	uv tool uninstall $(TOOL_NAME)
 	@printf "✅ Uninstalled $(TOOL_NAME)\n"
 	@printf "\n✅ Uninstallation successful\n"
+
+
