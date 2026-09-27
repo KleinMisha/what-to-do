@@ -10,10 +10,14 @@ install-cli-local:
 	@printf "✅ Installed shell completions\n"
 	@printf "\n✅ Installation successful\n"
 
+.PHONY: update-cli
+update-cli:
+	uv tool install --force .
+
 .PHONY: uninstall-cli
 uninstall-cli:
 	$(TOOL_NAME) config reset --hard 
-	@printf "✅ Deleted config file\n"
+	@printf "✅ Deleted config directory\n"
 	uv tool uninstall $(TOOL_NAME)
 	@printf "✅ Uninstalled $(TOOL_NAME)\n"
 	@printf "\n✅ Uninstallation successful\n"
