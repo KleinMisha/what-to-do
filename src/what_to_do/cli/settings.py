@@ -41,7 +41,8 @@ class CLISettings(BaseModel):
         if self.client_mode == ClientMode.LOCAL:
             return f"sqlite:////{self.database_path}"
         else:
-            raise NotImplementedError
+            print("Remote client not yet implemented")
+            return f"sqlite:////{self.database_path}"
 
 
 def get_cli_settings(settings_path: Path = SETTINGS_FILE_PATH) -> CLISettings:
