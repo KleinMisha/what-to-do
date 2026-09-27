@@ -7,8 +7,10 @@ from typer import Argument, Exit, Option, Typer, echo
 
 from what_to_do.cli.exceptions import CLIError, SettingsFileError
 from what_to_do.cli.settings import (
+    SETTINGS_DIR,
     SETTINGS_FILE_PATH,
     configure_cli_setting,
+    delete_settings_dir,
     restore_defaults,
     show_cli_settings,
 )
@@ -58,13 +60,23 @@ def reset(
     dry_run: Annotated[
         bool, Option("--dry-run", help="Only print the file that will get deleted.")
     ] = False,
+    hard: Annotated[
+        bool, Option("--hard", help="Delete the config directory.")
+    ] = False,
 ) -> None:
-    """Restore default configuration."""
+    """Restore default configuration by deleting the configuration file."""
     try:
         settings_file = file or SETTINGS_FILE_PATH
         restore_defaults(settings_file, dry_run=dry_run)
         echo("Restored default configuration.")
+
+        if hard:
+            settings_dir = file.parent if file else SETTINGS_DIR
+            delete_settings_dir(settings_dir, dry_run=dry_run)
+            echo("Hard reset completed.")
+
         raise Exit(code=0)
+
     except SettingsFileError:
         echo("Already using default configuration.")
         raise Exit(code=0)

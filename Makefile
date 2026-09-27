@@ -12,7 +12,7 @@ install-cli-local:
 
 .PHONY: uninstall-cli
 uninstall-cli:
-	$(TOOL_NAME) config reset 
+	$(TOOL_NAME) config reset --hard 
 	@printf "✅ Deleted config file\n"
 	uv tool uninstall $(TOOL_NAME)
 	@printf "✅ Uninstalled $(TOOL_NAME)\n"

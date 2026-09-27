@@ -16,7 +16,18 @@ from what_to_do.cli.settings import (
 @pytest.fixture
 def config_path(tmp_path: Path) -> Path:
     """Temporary config file for tests"""
-    return tmp_path / "config.toml"
+    config_dir = tmp_path / "config" / "what_to_do"
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    config_file = config_dir / "config.toml"
+    config_file.touch()
+    return config_file
+
+
+@pytest.fixture
+def config_no_create(tmp_path: Path) -> Path:
+    """Path to a file, without creating it."""
+    return tmp_path / "config" / "what_to_do" / "config.toml"
 
 
 def settings_in_output(settings: CLISettings, output: str) -> bool:
@@ -89,21 +100,22 @@ def test_show_settings_and_defaults(config_path: Path, cli_client: CliRunner) ->
 
 
 def test_current_settings_are_defaults_if_no_file_exists(
-    config_path: Path,
+    config_no_create: Path,
     cli_client: CliRunner,
 ) -> None:
     """Display configuration without writing anything to file"""
 
     # confirm that no configuration file exists
-    assert not config_path.exists()
+    config_file = config_no_create
+    assert not config_file.exists()
 
     # expected configurations
-    current = get_cli_settings(settings_path=config_path)
+    current = get_cli_settings(settings_path=config_file)
     defaults = get_default_cli_settings()
     assert current == defaults
 
     result = cli_client.invoke(
-        app, ["config", "show", "-f", str(config_path), "--defaults"]
+        app, ["config", "show", "-f", str(config_file), "--defaults"]
     )
 
     assert result.exit_code == 0
@@ -134,11 +146,13 @@ def test_set_setting(cli_client: CliRunner, config_path: Path) -> None:
     assert persisted_config.remote_api_url == defaults.remote_api_url
 
 
-def test_set_creates_dir_and_file(cli_client: CliRunner, tmp_path: Path) -> None:
+def test_set_creates_dir_and_file(
+    cli_client: CliRunner, config_no_create: Path
+) -> None:
     """First invocation of the save method (via setting a value) will create the file and directory"""
 
     # Start with non-existing file
-    config_file = tmp_path / "what_to_do" / "config.toml"
+    config_file = config_no_create
     assert not config_file.exists()
     assert not config_file.parent.exists()
 
@@ -174,12 +188,8 @@ def test_reset(cli_client: CliRunner, config_path: Path) -> None:
 def test_reset_dry_run(cli_client: CliRunner, config_path: Path) -> None:
     """Dry run: only display actions without actually affecting the file system"""
 
-    # modify to write something to the file
-    result = cli_client.invoke(
-        app,
-        ["config", "set", "database_filename", "new_name.db", "-f", str(config_path)],
-    )
-    assert result.exit_code == 0
+    # confirm starting point is an existing file
+    assert config_path.is_file()
 
     # execute dry run
     result = cli_client.invoke(
@@ -191,17 +201,62 @@ def test_reset_dry_run(cli_client: CliRunner, config_path: Path) -> None:
 
 
 def test_reset_when_already_default_config(
-    cli_client: CliRunner, config_path: Path
+    cli_client: CliRunner, config_no_create: Path
 ) -> None:
     """Resetting to default values when these are already in-use should simply proceed with a simple message being displayed."""
 
     # confirm that no configuration file exists
-    assert not config_path.exists()
+    config_file = config_no_create
+    assert not config_file.exists()
 
     # perform reset
-    result = cli_client.invoke(app, ["config", "reset", "-f", str(config_path)])
+    result = cli_client.invoke(app, ["config", "reset", "-f", str(config_file)])
     assert result.exit_code == 0
     assert "Already using default configuration." in result.stdout
+
+
+def test_reset_hard(cli_client: CliRunner, config_path: Path) -> None:
+    """Hard reset: Delete not only the TOML file, but also the directory."""
+
+    # Confirm starting starting point is an existing file
+    config_file = config_path
+    assert config_file.parent.is_dir()
+    assert config_file.is_file()
+
+    # invoke hard reset
+    result = cli_client.invoke(
+        app,
+        [
+            "config",
+            "reset",
+            "--hard",
+            "-f",
+            str(config_file),
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Now both file and directory should no longer exist
+    assert not config_file.exists()
+    assert not config_file.parent.exists()
+
+
+def test_hard_reset_dry_run(cli_client: CliRunner, config_path: Path) -> None:
+    """Dry run of hard reset: Only display messages. Do not touch filesystem."""
+
+    # confirm starting point is an existing file and directory
+    assert config_path.parent.is_dir()
+    assert config_path.is_file()
+
+    # execute dry run
+    result = cli_client.invoke(
+        app, ["config", "reset", "--hard", "--dry-run", "-f", str(config_path)]
+    )
+    assert result.exit_code == 0
+    assert str(config_path) in result.stdout
+    assert str(config_path.parent) in result.stdout
+    assert config_path.is_file()
+    assert config_path.parent.is_dir()
 
 
 def test_set_setting_invalid_key(cli_client: CliRunner, config_path: Path) -> None:
