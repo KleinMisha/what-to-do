@@ -1,9 +1,4 @@
-"""Command group: `config`
-
-
-└── config
-    └── reset
-"""
+"""Command group: `config`"""
 
 from pathlib import Path
 from typing import Annotated
