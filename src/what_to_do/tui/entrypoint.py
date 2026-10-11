@@ -2,8 +2,8 @@
 
 from what_to_do.db.database import get_engine
 from what_to_do.db.schema import Base
-from what_to_do.ui.app import WhatToDoApp
-from what_to_do.ui.settings import get_tui_settings
+from what_to_do.tui.app import WhatToDoApp
+from what_to_do.tui.settings import get_tui_settings
 
 
 def main() -> None:

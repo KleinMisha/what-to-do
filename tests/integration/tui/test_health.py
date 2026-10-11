@@ -1,6 +1,6 @@
 import pytest
 
-from what_to_do.ui.app import WhatToDoApp
+from what_to_do.tui.app import WhatToDoApp
 
 
 @pytest.mark.asyncio

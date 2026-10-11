@@ -5,7 +5,7 @@ from typing import Any
 from what_to_do.client.client import Client
 from what_to_do.client.factory import get_client
 from what_to_do.tasks.models import ResourceType
-from what_to_do.ui.settings import get_tui_settings
+from what_to_do.tui.settings import get_tui_settings
 
 
 @contextmanager
