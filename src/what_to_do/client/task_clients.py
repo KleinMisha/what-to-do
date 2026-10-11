@@ -1,8 +1,9 @@
 """Clients for Task resource."""
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
+from what_to_do.client.client import Client
 from what_to_do.client.local_client import CRUDService, LocalClient
 from what_to_do.tasks.models import Task
 
@@ -16,6 +17,15 @@ class TaskService(CRUDService[Task], Protocol):
         *,
         group_id: UUID,
         project_id: UUID | None,
+    ) -> Task: ...
+
+
+@runtime_checkable
+class TaskClient(Client[Task], Protocol):
+    """Contract for any of the Task clients."""
+
+    def assign(
+        self, *, task_id: UUID, project_id: UUID | None, group_id: UUID
     ) -> Task: ...
 
 

@@ -7,7 +7,7 @@ from typer import Argument, Exit, Option, Typer, echo
 
 from what_to_do.cli.helpers import TOOL_NAME, get_cli_client, render_task
 from what_to_do.client.factory import ResourceType
-from what_to_do.client.task_clients import LocalTaskClient
+from what_to_do.client.task_clients import TaskClient
 from what_to_do.core.exceptions import InvalidAssignmentError, ResourceNotFoundError
 from what_to_do.tasks.models import Priority, Task
 
@@ -197,7 +197,7 @@ def assign(
             project = None
 
         with get_cli_client(ResourceType.TASKS) as client:
-            assert isinstance(client, LocalTaskClient)
+            assert isinstance(client, TaskClient)
             original: Task = client.get(id)
 
             updated = client.assign(

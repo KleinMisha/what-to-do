@@ -16,7 +16,7 @@ from what_to_do.cli.helpers import (
     render_task,
 )
 from what_to_do.client.factory import ResourceType
-from what_to_do.client.project_clients import LocalProjectClient
+from what_to_do.client.project_clients import ProjectClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Project, Task
 
@@ -137,7 +137,7 @@ def delete(
 
     try:
         with get_cli_client(ResourceType.PROJECTS) as client:
-            assert isinstance(client, LocalProjectClient)
+            assert isinstance(client, ProjectClient)
             deleted = client.delete(id, keep_tasks=keep_tasks)
 
         echo(f"Deleted project: \n {render_project(deleted)}")
@@ -164,7 +164,7 @@ def assign(
 ) -> None:
     try:
         with get_cli_client(ResourceType.PROJECTS) as client:
-            assert isinstance(client, LocalProjectClient)
+            assert isinstance(client, ProjectClient)
             updated: Project = client.assign(project_id=id, group_id=group)
 
         echo(f"Updated project: \n {render_project(updated)}")
@@ -181,7 +181,7 @@ def list_tasks(id: Annotated[UUID, Argument(help="Project ID.")]) -> None:
 
     try:
         with get_cli_client(ResourceType.PROJECTS) as client:
-            assert isinstance(client, LocalProjectClient)
+            assert isinstance(client, ProjectClient)
             tasks: list[Task] = client.list_tasks(id)
 
         if not tasks:

@@ -1,8 +1,9 @@
 """Clients for Project resource."""
 
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
+from what_to_do.client.client import Client
 from what_to_do.client.local_client import CRUDService, LocalClient
 from what_to_do.tasks.models import Project, Task
 
@@ -12,6 +13,15 @@ class ProjectService(CRUDService[Project], Protocol):
 
     def assign_to_new_group(self, project: Project, *, group_id: UUID) -> Project: ...
     def list_tasks(self, project_id: UUID) -> list[Task]: ...
+    def delete(self, id: UUID, keep_tasks: bool = False) -> Project: ...
+
+
+@runtime_checkable
+class ProjectClient(Client[Project], Protocol):
+    """Contract for any of the Project clients."""
+
+    def assign(self, *, project_id: UUID, group_id: UUID) -> Project: ...
+    def list_tasks(self, id: UUID) -> list[Task]: ...
     def delete(self, id: UUID, keep_tasks: bool = False) -> Project: ...
 
 

@@ -13,7 +13,7 @@ from what_to_do.cli.helpers import (
     render_task,
 )
 from what_to_do.client.factory import ResourceType
-from what_to_do.client.group_clients import LocalGroupClient
+from what_to_do.client.group_clients import GroupClient
 from what_to_do.core.exceptions import ResourceNotFoundError
 from what_to_do.tasks.models import Group, Project, Task
 
@@ -112,7 +112,7 @@ def list_tasks(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
 
     try:
         with get_cli_client(ResourceType.GROUPS) as client:
-            assert isinstance(client, LocalGroupClient)
+            assert isinstance(client, GroupClient)
             tasks: list[Task] = client.list_tasks(id)
 
         if not tasks:
@@ -134,7 +134,7 @@ def list_projects(id: Annotated[UUID, Argument(help="Group ID.")]) -> None:
 
     try:
         with get_cli_client(ResourceType.GROUPS) as client:
-            assert isinstance(client, LocalGroupClient)
+            assert isinstance(client, GroupClient)
             projects: list[Project] = client.list_projects(id)
 
         if not projects:
