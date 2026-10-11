@@ -10,17 +10,20 @@ dependencies = [
     "pydantic>=2.13.4",
     "pydantic-settings>=2.15.0",
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
     "pytest-cov>=7.1.0",
     "sqlalchemy>=2.0.52",
+    "textual>=8.2.8",
     "tomli-w>=1.2.0",
     "typer>=0.27.2",
     "uvicorn>=0.52.4",
 ]
 [project.scripts]
 what-to-do = "what_to_do.cli.entrypoint:main"
+what-to-tui = "what_to_do.ui.entrypoint:main"
 
 [build-system]
-requires = ["uv_build>=0.10.0, <0.11.0"]
+requires = ["uv_build>=0.11.0, <0.12.0"]
 build-backend = "uv_build"
 
 [tool.setuptools]
