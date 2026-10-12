@@ -4,6 +4,8 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Footer, Label, Static
 
+from what_to_do.tui.widgets.resource_tree import ResourceTreePanel
+
 
 class DummyPanel(Static):
     def __init__(self, id: str, text: str) -> None:
@@ -25,7 +27,7 @@ class WhatToDoApp(App[None]):
     def compose(self) -> ComposeResult:
         with Horizontal():
             with Vertical(id="resource-tree"):
-                yield DummyPanel(id="left-panel", text="left-panel")
+                yield ResourceTreePanel()
 
             with Vertical(id="task-list"):
                 yield DummyPanel(id="middle-panel", text="middle-panel")
