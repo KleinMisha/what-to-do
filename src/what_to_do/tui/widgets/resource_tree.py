@@ -31,9 +31,14 @@ class ResourceTreePanel(Static):
 
     def _on_mount(self, event: Mount) -> None:
         super()._on_mount(event)
-        self.add_nodes()
+        self.build_tree()
 
-    def add_nodes(self) -> None:
+    def refresh_tree(self) -> None:
+        """Reload the tree"""
+        self.resource_tree.clear()
+        self.build_tree()
+
+    def build_tree(self) -> None:
         """Populate the tree view"""
 
         with get_tui_client(ResourceType.GROUPS) as client:
