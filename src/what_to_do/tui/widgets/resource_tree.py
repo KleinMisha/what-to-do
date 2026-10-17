@@ -31,7 +31,7 @@ class ResourceTreePanel(Static):
 
     def _on_mount(self, event: Mount) -> None:
         super()._on_mount(event)
-        self.build_tree()
+        self.refresh_tree()
 
     def refresh_tree(self) -> None:
         """Reload the tree"""
@@ -68,6 +68,7 @@ class ResourceTreePanel(Static):
                     )
 
                     # TODO --> Maybe remove this part once middle panel is implemented
+                    # show tasks below project
                     with get_tui_client(ResourceType.PROJECTS) as proj_client:
                         assert isinstance(proj_client, ProjectClient)
                         for task in proj_client.list_tasks(project.id):
